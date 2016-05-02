@@ -16,7 +16,6 @@ IF (WIN32)
 ENDIF ()
 
 ADD_LIBRARY ( nCacheParser STATIC
-  GetConfig.cpp
   nCacheLoader.cpp
   AbstractFileReader.cpp
   AbstractMemoryReader.cpp
