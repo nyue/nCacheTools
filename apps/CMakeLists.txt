@@ -18,6 +18,10 @@ ADD_EXECUTABLE ( xmlinfo
   xmlinfo_main.cpp
   )
 
+ADD_EXECUTABLE ( mcc2csv
+  mcc2csv_main.cpp
+  )
+
 # MESSAGE ( "Boost_LIBRARIES = ${Boost_LIBRARIES}" )
 
 SET  ( NCACHE_REQUIRED_LIBRARIES
@@ -41,5 +45,9 @@ TARGET_LINK_LIBRARIES ( mccinfo
   )
 
 TARGET_LINK_LIBRARIES ( xmlinfo
+  ${NCACHE_REQUIRED_LIBRARIES}
+  )
+
+TARGET_LINK_LIBRARIES ( mcc2csv
   ${NCACHE_REQUIRED_LIBRARIES}
   )
