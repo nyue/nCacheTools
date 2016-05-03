@@ -166,18 +166,21 @@ void XMLReader::handle_Channels(xercesc::DOMElement* currentElement)
     			currentNode->getNodeType() == DOMNode::ELEMENT_NODE ) // is element
     	{
     		ChannelInfo channel_info;
-    		handle_Channel(dynamic_cast<xercesc::DOMElement*>(currentNode),channel_info);
-    		_channels.push_back(channel_info);
-
+    		std::string channel_name;
+    		// handle_Channel(dynamic_cast<xercesc::DOMElement*>(currentNode),channel_info);
+    		handle_Channel(dynamic_cast<xercesc::DOMElement*>(currentNode),channel_name,channel_info);
+    		// _channels.push_back(channel_info);
+    		_channels.insert(ChannelInfoContainer::value_type(channel_name,channel_info));
     	}
     }
     // std::cout << boost::format("Channels children element nodeCount = %1%") % elementNodeCount << std::endl;
 }
 
-void XMLReader::handle_Channel(xercesc::DOMElement* i_channel_element, ChannelInfo& o_channel)
+void XMLReader::handle_Channel(xercesc::DOMElement* i_channel_element, std::string& o_channel_name, ChannelInfo& o_channel)
 {
 
-	get_string_attribute(i_channel_element, "ChannelName", o_channel._channel_name);
+	// get_string_attribute(i_channel_element, "ChannelName", o_channel._channel_name);
+	get_string_attribute(i_channel_element, "ChannelName", o_channel_name);
 	get_string_attribute(i_channel_element, "ChannelType", o_channel._channel_type);
 	get_string_attribute(i_channel_element, "ChannelInterpretation", o_channel._channel_interpretation);
 	//
@@ -330,24 +333,43 @@ void XMLReader::readConfigFile(const std::string& configFile)
 
 const ChannelInfo* XMLReader::find_channel_by_name(const std::string& i_channel_name) const
 {
+#ifdef NON_MAP
 	size_t num_channels = _channels.size();
 	for (size_t channel_index = 0;channel_index<num_channels;++channel_index)
 	{
 		if (_channels[channel_index]._channel_name.compare(i_channel_name) == 0)
 			return &_channels[channel_index];
 	}
+#else // NON_MAP
+	std::pair<ChannelInfoContainer::iterator,bool> result;
+	ChannelInfoContainer::const_iterator iter = _channels.find(i_channel_name);
+	if (iter == _channels.end())
+		return 0;
+	else
+		return &(result.first->second);
+#endif // NON_MAP
 
 	return 0;
 }
 
 const ChannelInfo* XMLReader::find_channel_by_interpretation(const std::string& i_channel_interpretation) const
 {
+#ifdef NON_MAP
 	size_t num_channels = _channels.size();
 	for (size_t channel_index = 0;channel_index<num_channels;++channel_index)
 	{
 		if (_channels[channel_index]._channel_interpretation.compare(i_channel_interpretation) == 0)
 			return &_channels[channel_index];
 	}
+#else // NON_MAP
+	ChannelInfoContainer::const_iterator iter = _channels.begin();
+	ChannelInfoContainer::const_iterator eIter = _channels.end();
+	for (;iter!=eIter;++iter)
+	{
+		if (iter->second._channel_interpretation.compare(i_channel_interpretation) == 0)
+			return &(iter->second);
+	}
+#endif // NON_MAP
 
 	return 0;
 }
@@ -362,7 +384,7 @@ void XMLReader::debugDump() const
 	ChannelInfoContainer::const_iterator channels_eIter = _channels.end();
 	for (;channels_iter!=channels_eIter;++channels_iter)
 	{
-		std::cout << (*channels_iter) << std::endl;
+		std::cout << channels_iter->second << std::endl;
 	}
 
 }

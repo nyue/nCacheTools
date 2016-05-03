@@ -3,6 +3,7 @@
 #include <string>
 #include <stdexcept>
 #include <iostream>
+#include <map>
 #include <boost/format.hpp>
 
 namespace nCache
@@ -11,7 +12,7 @@ namespace nCache
 	struct ChannelInfo
 	{
 		enum SamplingType { SAMPLING_REGULAR, SAMPLING_IRREGULAR };
-		std::string  _channel_name;
+		// std::string  _channel_name;
 		std::string  _channel_type;
 		std::string  _channel_interpretation;
 		SamplingType _sampling_type;
@@ -20,7 +21,7 @@ namespace nCache
 		size_t       _end_time;
 		friend std::ostream& operator << (std::ostream& os, const ChannelInfo& rhs)
 		{
-			os << boost::format("Name = '%1%'") % rhs._channel_name << std::endl;
+			// os << boost::format("Name = '%1%'") % rhs._channel_name << std::endl;
 			os << boost::format("Type = %1%") % rhs._channel_type << std::endl;
 			os << boost::format("Interpretation = %1%") % rhs._channel_interpretation << std::endl;
 			os << boost::format("Sampling type = %1%") % (rhs._sampling_type==SAMPLING_REGULAR?"Regular":"Irregular") << std::endl;
@@ -31,7 +32,8 @@ namespace nCache
 		}
 	};
 
-	typedef std::vector<ChannelInfo> ChannelInfoContainer;
+	// typedef std::vector<ChannelInfo> ChannelInfoContainer;
+	typedef std::map<std::string,ChannelInfo> ChannelInfoContainer;
 } // namespace nCache
 
 // == Emacs ================

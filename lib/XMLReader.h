@@ -56,9 +56,18 @@ namespace nCache
 		void handle_time(xercesc::DOMElement* currentElement);
 		void handle_cacheTimePerFram(xercesc::DOMElement* currentElement);
 		void handle_Channels(xercesc::DOMElement* currentElement);
-		void handle_Channel(xercesc::DOMElement* i_channel_element, ChannelInfo& o_channel);
+		void handle_Channel(xercesc::DOMElement* i_channel_element, std::string& o_channel_name, ChannelInfo& o_channel);
 		void get_string_attribute(xercesc::DOMElement* i_element, const std::string& i_attribute, std::string& o_string) const;
+		/*!
+		 * \todo Switch to returning bool and actual result as an output
+		 *       parameter
+		 */
 		const ChannelInfo* find_channel_by_name(const std::string& i_channel_name) const;
+		/*!
+		 * \todo Switch to returning bool and actual result as an output
+		 *       parameter so that we can return a list of channels that has the
+		 *       same interpretation as they are not unique
+		 */
 		const ChannelInfo* find_channel_by_interpretation(const std::string& i_channel_interpretation) const;
 	protected:
 		std::string _cache_type;
