@@ -1,4 +1,5 @@
 ADD_LIBRARY ( nCacheParser STATIC
+  ChannelInfo.cpp
   nCacheLoader.cpp
   AbstractFileReader.cpp
   AbstractMemoryReader.cpp

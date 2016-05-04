@@ -9,6 +9,37 @@
 namespace nCache
 {
 
+
+	struct Header
+	{
+		std::string VRSN; // Version Number (char*)
+		int STIM;		  // Start Time of the Cache File (int)
+		int ETIM;		  // End Time of the Cache File (int)
+	};
+	struct FloatVector
+	{
+		float x;
+		float y;
+		float z;
+	};
+	enum ChannelDataType
+	{
+		DBLA,
+		FVCA,
+		FBCA,
+		UNKNOWN
+	};
+	ChannelDataType string2ChannelDataType(const std::string& i_channel_data_type_string);
+	struct ChannelData {
+		std::string _type;
+		// ChannelDataType _type;
+		std::vector <double> _dbla;
+		std::vector <float> _fbca;
+		std::vector <FloatVector> _fvca;
+	};
+	typedef std::map<std::string,ChannelData> ChannelDataContainer;
+
+
 	struct ChannelInfo
 	{
 		enum SamplingType { SAMPLING_REGULAR, SAMPLING_IRREGULAR };
