@@ -15,6 +15,25 @@ nCache::ChannelDataType nCache::string2ChannelDataType(const std::string& i_chan
 		// return UNKNOWN;
 }
 
+std::string nCache::ChannelDataType2string(const nCache::ChannelDataType& i_channel_data_type)
+{
+	switch (i_channel_data_type)
+	{
+	case DBLA :
+		return std::string("DBLA");
+		break;
+	case FVCA :
+		return std::string("FVCA");
+		break;
+	case FBCA :
+		return std::string("FBCA");
+		break;
+	default:
+		return std::string("UNKNOWN");
+		break;
+	}
+}
+
 // == Emacs ================
 // -------------------------
 // Local variables:

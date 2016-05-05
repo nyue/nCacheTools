@@ -30,6 +30,7 @@ namespace nCache
 		UNKNOWN
 	};
 	ChannelDataType string2ChannelDataType(const std::string& i_channel_data_type_string);
+	std::string ChannelDataType2string(const ChannelDataType& i_channel_data_type);
 	struct ChannelData {
 		// std::string _type;
 		ChannelDataType _type;
