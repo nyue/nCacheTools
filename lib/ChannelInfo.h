@@ -31,8 +31,8 @@ namespace nCache
 	};
 	ChannelDataType string2ChannelDataType(const std::string& i_channel_data_type_string);
 	struct ChannelData {
-		std::string _type;
-		// ChannelDataType _type;
+		// std::string _type;
+		ChannelDataType _type;
 		std::vector <double> _dbla;
 		std::vector <float> _fbca;
 		std::vector <FloatVector> _fvca;

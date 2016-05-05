@@ -1,8 +1,8 @@
 #include "ChannelInfo.h"
+#include <stdexcept>
+#include <boost/format.hpp>
 
-using namespace nCache;
-
-ChannelDataType string2ChannelDataType(const std::string& i_channel_data_type_string)
+nCache::ChannelDataType nCache::string2ChannelDataType(const std::string& i_channel_data_type_string)
 {
 	if (i_channel_data_type_string.compare("DBLA")==0)
 		return DBLA;
@@ -11,7 +11,8 @@ ChannelDataType string2ChannelDataType(const std::string& i_channel_data_type_st
 	else if (i_channel_data_type_string.compare("FBCA")==0)
 		return FBCA;
 	else
-		return UNKNOWN;
+		throw std::runtime_error((boost::format("Unknown channel data type string '%1%'") % i_channel_data_type_string).str());
+		// return UNKNOWN;
 }
 
 // == Emacs ================

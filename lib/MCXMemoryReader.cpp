@@ -156,7 +156,7 @@ bool MCXMemoryReader::read_channel()
 
 		// _channels_data.back()._name = channel_name;
 		// _channels_data.back()._type = array_data_type;
-		iter->second._type = array_data_type;
+		iter->second._type = string2ChannelDataType(array_data_type);
 
 		if (array_data_type.compare("DBLA")==0)
 		{
