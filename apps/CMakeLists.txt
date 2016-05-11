@@ -22,6 +22,10 @@ ADD_EXECUTABLE ( mcc2csv
   mcc2csv_main.cpp
   )
 
+ADD_EXECUTABLE ( nCache2alembic
+  nCache2alembic_main.cpp
+  )
+
 # MESSAGE ( "Boost_LIBRARIES = ${Boost_LIBRARIES}" )
 
 SET  ( NCACHE_REQUIRED_LIBRARIES
@@ -51,3 +55,8 @@ TARGET_LINK_LIBRARIES ( xmlinfo
 TARGET_LINK_LIBRARIES ( mcc2csv
   ${NCACHE_REQUIRED_LIBRARIES}
   )
+
+TARGET_LINK_LIBRARIES ( nCache2alembic
+  ${NCACHE_REQUIRED_LIBRARIES}
+  )
+
