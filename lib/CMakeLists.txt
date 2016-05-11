@@ -8,4 +8,5 @@ ADD_LIBRARY ( nCacheParser STATIC
   MCMemoryReader.cpp
   MCXMemoryReader.cpp
   XMLReader.cpp
+  nCacheAlembic.cpp
   )
