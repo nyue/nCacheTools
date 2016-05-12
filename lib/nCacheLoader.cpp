@@ -54,7 +54,7 @@ void nCacheLoader::process(const std::string& i_ncache_xml_filename)
 	for (size_t frame_index = start_frame; frame_index <= end_frame; frame_index++)
 	{
 		std::string per_initial_frame_mcx_full_path = (boost::format("%1%/%2%Frame%3%.%4%") % _xml_reader.get_cache_directory() % _xml_reader.get_cache_name() % frame_index % cache_extension).str();
-		std::cout << boost::format("START processing %1%") % per_initial_frame_mcx_full_path << std::endl;
+//		std::cout << boost::format("START processing %1%") % per_initial_frame_mcx_full_path << std::endl;
 
 #ifdef FILE_BASED
 		boost::shared_ptr<AbstractFileReader> cache_reader_ptr;
@@ -75,20 +75,20 @@ void nCacheLoader::process(const std::string& i_ncache_xml_filename)
 														)
 									);
 #endif // FILE_BASED
-		std::cout << boost::format("DONE processing %1%") % per_initial_frame_mcx_full_path << std::endl;
-		std::cout << boost::format("sampling_rate = %1%, cache_per_frame_tick = %2%, frame_index = %3%, end_frame = %4%")
-				% sampling_rate
-				% cache_per_frame_tick
-				% frame_index
-				% end_frame
-				<< std::endl;
+//		std::cout << boost::format("DONE processing %1%") % per_initial_frame_mcx_full_path << std::endl;
+//		std::cout << boost::format("sampling_rate = %1%, cache_per_frame_tick = %2%, frame_index = %3%, end_frame = %4%")
+//				% sampling_rate
+//				% cache_per_frame_tick
+//				% frame_index
+//				% end_frame
+//				<< std::endl;
 		if ((sampling_rate < cache_per_frame_tick) && (frame_index!=end_frame))
 		{
 			size_t accumulated_ticks = sampling_rate;
 			while ((accumulated_ticks < cache_per_frame_tick) && ((cache_per_frame_tick-accumulated_ticks)>=sampling_rate) )
 			{
 				std::string per_sub_frame_mcx_full_path = (boost::format("%1%/%2%Frame%3%Tick%4%.%5%") % _xml_reader.get_cache_directory() % _xml_reader.get_cache_name() % frame_index % accumulated_ticks % cache_extension).str();
-				std::cout << boost::format("\t%1%") % per_sub_frame_mcx_full_path << std::endl;
+				// std::cout << boost::format("\t%1%") % per_sub_frame_mcx_full_path << std::endl;
 				accumulated_ticks += sampling_rate;
 			}
 		}

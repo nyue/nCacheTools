@@ -29,6 +29,11 @@ nCacheAlembic::nCacheAlembic(const std::string& i_alembic_filename,
     Alembic::AbcGeom::OObject iParent( archive, Alembic::AbcGeom::kTop );
     Alembic::AbcGeom::OXform xform = addXform(iParent,"Xform");
 
+    std::cout << boost::format("START = %1%") % i_ncache_loader.get_xml_reader().get_time_range_start() << std::endl;
+    std::cout << boost::format("END = %1%") % i_ncache_loader.get_xml_reader().get_time_range_end() << std::endl;
+
+    std::cout << boost::format("TIME PER FRAME = %1%") % i_ncache_loader.get_xml_reader().get_cacheTimePerFrame_TimePerFrame() << std::endl;
+    std::cout << boost::format("SAMPLING RATE = %1%") % i_ncache_loader.get_xml_reader().get_particle_count_sampling_rate() << std::endl;
 
 }
 
