@@ -58,6 +58,11 @@ TARGET_LINK_LIBRARIES ( mcc2csv
 
 SET  ( ALEMBIC_REQUIRED_LIBRARIES 
   ${Alembic_Alembic_LIBRARY}
+  ${Ilmbase_HALF_LIBRARY}
+  ${Ilmbase_IEX_LIBRARY}
+  ${HDF5_hdf5_LIBRARY}
+  ${HDF5_hdf5_hl_LIBRARY}
+  ${HDF5_z_LIBRARY}
  )
 
 TARGET_LINK_LIBRARIES ( nCache2alembic

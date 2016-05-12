@@ -5,6 +5,7 @@
 #include <glog/logging.h>
 
 #include "nCacheLoader.h"
+#include "nCacheAlembic.h"
 
 int
 main (int argc, char **argv)
@@ -19,6 +20,7 @@ main (int argc, char **argv)
 	std::string alembic_filename(argv[2]);
 	nCache::nCacheLoader cache_loader(xml_filename);
 	cache_loader.process();
+	nCache::nCacheAlembic cache_alembic(alembic_filename, cache_loader);
 
 	return 0;
 }
