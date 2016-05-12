@@ -35,8 +35,9 @@ namespace nCache
 	class XMLReader
 	{
 	public:
-		XMLReader(const std::string& i_ncache_xml_filename);
+		XMLReader();
 		~XMLReader();
+		void read(const std::string& i_ncache_xml_filename);
 		std::string getCacheType() const { return _cache_type; }
 		std::string getCacheFormat() const { return _cache_format; }
 		const ChannelInfoContainer& getChannels() const {return _channels; }

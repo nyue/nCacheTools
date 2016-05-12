@@ -27,32 +27,9 @@ using namespace nCache;
  *  The xerces-C DOM parser infrastructure is initialized.
  */
 
-XMLReader::XMLReader(const std::string& i_ncache_xml_filename)
+XMLReader::XMLReader()
 : m_ConfigFileParser(0)
-// , _num_frames(0)
 {
-   try
-   {
-      XMLPlatformUtils::Initialize();  // Initialize Xerces infrastructure
-   }
-   catch( XMLException& e )
-   {
-      char* message = XMLString::transcode( e.getMessage() );
-      std::cerr << "XML toolkit initialization error: " << message << std::endl;
-      XMLString::release( &message );
-      // throw exception here to return ERROR_XERCES_INIT
-   }
-
-   // Tags and attributes used in XML file.
-   // Can't call transcode till after Xerces Initialize()
-   TAG_Autodesk_CacheFile	= XMLString::transcode("Autodesk_CacheFile");
-   TAG_cacheType			= XMLString::transcode("cacheType");
-   TAG_time			        = XMLString::transcode("time");
-   TAG_cacheTimePerFrame    = XMLString::transcode("cacheTimePerFrame");
-   TAG_Channels             = XMLString::transcode("Channels");
-
-   m_ConfigFileParser = new XercesDOMParser;
-   readConfigFile(i_ncache_xml_filename);
 }
 
 /**
@@ -94,6 +71,32 @@ XMLReader::~XMLReader()
       std::cerr << "XML toolkit teardown error: " << message << std::endl;
       XMLString::release( &message );
    }
+}
+
+void XMLReader::read(const std::string& i_ncache_xml_filename)
+{
+	   try
+	   {
+	      XMLPlatformUtils::Initialize();  // Initialize Xerces infrastructure
+	   }
+	   catch( XMLException& e )
+	   {
+	      char* message = XMLString::transcode( e.getMessage() );
+	      std::cerr << "XML toolkit initialization error: " << message << std::endl;
+	      XMLString::release( &message );
+	      // throw exception here to return ERROR_XERCES_INIT
+	   }
+
+	   // Tags and attributes used in XML file.
+	   // Can't call transcode till after Xerces Initialize()
+	   TAG_Autodesk_CacheFile	= XMLString::transcode("Autodesk_CacheFile");
+	   TAG_cacheType			= XMLString::transcode("cacheType");
+	   TAG_time			        = XMLString::transcode("time");
+	   TAG_cacheTimePerFrame    = XMLString::transcode("cacheTimePerFrame");
+	   TAG_Channels             = XMLString::transcode("Channels");
+
+	   m_ConfigFileParser = new XercesDOMParser;
+	   readConfigFile(i_ncache_xml_filename);
 }
 
 void XMLReader::get_string_attribute(xercesc::DOMElement* i_element, const std::string& i_attribute, std::string& o_string) const

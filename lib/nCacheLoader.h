@@ -9,11 +9,14 @@ namespace nCache
 	class nCacheLoader
 	{
 	public:
-		nCacheLoader(const std::string& i_ncache_xml_filename);
+		nCacheLoader();
 		~nCacheLoader();
-		void process();
+		void process(const std::string& i_ncache_xml_filename);
+		const XMLReader& get_xml_reader() const { return _xml_reader; }
+		const std::string& get_ncache_xml_filename() const { return _ncache_xml_filename; }
 	protected:
-		boost::shared_ptr<XMLReader> _xml_reader_ptr;
+		XMLReader _xml_reader;
+		std::string _ncache_xml_filename;
 	};
 
 } // namespace nCache

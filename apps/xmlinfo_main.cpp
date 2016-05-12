@@ -7,7 +7,8 @@ int main(int argc, char** argv)
 		return 1;
 	google::InitGoogleLogging(argv[0]);
 	std::string xml_filename(argv[1]);
-	nCache::XMLReader xml_reader(xml_filename);
+	nCache::XMLReader xml_reader;
+	xml_reader.read(xml_filename);
 	xml_reader.debugDump();
 	size_t sampling_rate         = xml_reader.get_particle_count_sampling_rate();
 	std::cout << boost::format("sampling_rate = %1%") % sampling_rate << std::endl;

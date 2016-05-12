@@ -14,8 +14,8 @@ main (int argc, char **argv)
 	if (argc == 2)
 	{
 		std::string xml_filename(argv[1]);
-		nCache::nCacheLoader cache_loader(xml_filename);
-		cache_loader.process();
+		nCache::nCacheLoader cache_loader;
+		cache_loader.process(xml_filename);
 	}
 	return 0;
 }

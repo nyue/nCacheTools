@@ -29,6 +29,7 @@ nCacheAlembic::nCacheAlembic(const std::string& i_alembic_filename,
     Alembic::AbcGeom::OObject iParent( archive, Alembic::AbcGeom::kTop );
     Alembic::AbcGeom::OXform xform = addXform(iParent,"Xform");
 
+
 }
 
 nCacheAlembic::~nCacheAlembic()
