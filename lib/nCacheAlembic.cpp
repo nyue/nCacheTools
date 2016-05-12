@@ -29,12 +29,35 @@ nCacheAlembic::nCacheAlembic(const std::string& i_alembic_filename,
     Alembic::AbcGeom::OObject iParent( archive, Alembic::AbcGeom::kTop );
     Alembic::AbcGeom::OXform xform = addXform(iParent,"Xform");
 
-    std::cout << boost::format("START = %1%") % i_ncache_loader.get_xml_reader().get_time_range_start() << std::endl;
-    std::cout << boost::format("END = %1%") % i_ncache_loader.get_xml_reader().get_time_range_end() << std::endl;
+    const nCache::XMLReader& xml_reader = i_ncache_loader.get_xml_reader();
 
-    std::cout << boost::format("TIME PER FRAME = %1%") % i_ncache_loader.get_xml_reader().get_cacheTimePerFrame_TimePerFrame() << std::endl;
-    std::cout << boost::format("SAMPLING RATE = %1%") % i_ncache_loader.get_xml_reader().get_particle_count_sampling_rate() << std::endl;
+    size_t ncache_start = xml_reader.get_time_range_start();
+    size_t ncache_end = xml_reader.get_time_range_end();
+    size_t ncache_ticks_per_frame = xml_reader.get_cacheTimePerFrame_TimePerFrame();
+    size_t ncache_sampling_rate = xml_reader.get_particle_count_sampling_rate();
+    double fps = 6000.0/ncache_ticks_per_frame;
+    std::cout << boost::format("ncache_start = %1%") % ncache_start << std::endl;
+    std::cout << boost::format("ncache_end = %1%") % ncache_end << std::endl;
+    std::cout << boost::format("ncache_ticks_per_frame = %1%") % ncache_ticks_per_frame << std::endl;
+    std::cout << boost::format("FPS (calculated) = %1%") % fps << std::endl;
+    std::cout << boost::format("ncache_sampling_rate RATE = %1%") % ncache_sampling_rate << std::endl;
 
+    std::vector< double > samps;
+    // Alembic::Util::uint32_t num_time_samples = (i_ncache_loader.get_xml_reader().get_time_range_end() - i_ncache_loader.get_xml_reader().get_time_range_start())/i_ncache_loader.get_xml_reader().get_particle_count_sampling_rate();
+    Alembic::Util::uint32_t num_time_samples = 0;
+    // for (Alembic::Util::uint32_t sample_index = 0; sample_index < num_time_samples; sample_index++)
+    for (size_t sample_tick = ncache_start; sample_tick <= ncache_end; sample_tick+=ncache_sampling_rate,num_time_samples++)
+    {
+        std::cout << boost::format("sample_tick = %1%, ncache_sampling_rate = %2%, fps = %3%") % sample_tick % ncache_sampling_rate % fps<< std::endl;
+        double sampling_value = (sample_tick/ncache_sampling_rate)/fps;
+        std::cout << boost::format("sampling_value = %1%") % sampling_value << std::endl;
+    	samps.push_back(sampling_value);
+    }
+    std::cout << boost::format("num_time_samples = %1%") % num_time_samples << std::endl;
+    // Create the time sampling type.
+    Alembic::AbcCoreAbstract::TimeSampling ts(Alembic::AbcCoreAbstract::TimeSamplingType(num_time_samples, 1.0), samps);
+    std::cout << boost::format("getNumStoredTimes = %1%") % ts.getNumStoredTimes() << std::endl;
+    Alembic::Util::uint32_t tsidx = iParent.getArchive().addTimeSampling(ts);
 }
 
 nCacheAlembic::~nCacheAlembic()
