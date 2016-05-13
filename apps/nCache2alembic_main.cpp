@@ -20,7 +20,8 @@ main (int argc, char **argv)
 	std::string alembic_filename(argv[2]);
 	nCache::nCacheLoader cache_loader;
 	cache_loader.process(xml_filename);
-	nCache::nCacheAlembic cache_alembic(alembic_filename, cache_loader);
+	nCache::nCacheAlembic cache_alembic;
+	cache_alembic.process(alembic_filename, cache_loader);
 
 	return 0;
 }

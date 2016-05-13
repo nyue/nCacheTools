@@ -8,8 +8,9 @@ namespace nCache
 	class nCacheAlembic
 	{
 	public:
-		nCacheAlembic(const std::string& i_alembic_filename, const nCacheLoader& i_ncache_loader);
+		nCacheAlembic();
 		virtual ~nCacheAlembic();
+		void process(const std::string& i_alembic_filename, const nCacheLoader& i_ncache_loader);
 	protected:
 	};
 
