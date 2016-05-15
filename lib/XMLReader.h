@@ -50,6 +50,8 @@ namespace nCache
 		size_t get_cacheTimePerFrame_TimePerFrame() const { return _cacheTimePerFrame_TimePerFrame;};
 		size_t get_particle_count_sampling_rate() const { return _particle_count_sampling_rate;};
 
+		bool find_channel_ends_with(const std::string& i_matching_endswith_string, std::string& o_channel_name) const;
+
 		void debugDump() const;
 	protected:
 		void readConfigFile(const std::string&) throw(std::runtime_error);

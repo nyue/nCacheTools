@@ -377,6 +377,21 @@ const ChannelInfo* XMLReader::find_channel_by_interpretation(const std::string& 
 	return 0;
 }
 
+bool XMLReader::find_channel_ends_with(const std::string& i_matching_endswith_string, std::string& o_channel_name) const
+{
+	ChannelInfoContainer::const_iterator cicIter = _channels.begin();
+	ChannelInfoContainer::const_iterator cicEIter = _channels.end();
+	for (;cicIter!=cicEIter;++cicIter)
+	{
+		if (boost::algorithm::ends_with(cicIter->first, i_matching_endswith_string))
+		{
+			o_channel_name = cicIter->first;
+			return true;
+		}
+	}
+	return false;
+}
+
 void XMLReader::debugDump() const
 {
 	std::cout << "XMLReader::debugDump() : " << std::endl;

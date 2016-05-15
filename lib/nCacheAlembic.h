@@ -10,7 +10,7 @@ namespace nCache
 	public:
 		nCacheAlembic();
 		virtual ~nCacheAlembic();
-		void process(const std::string& i_alembic_filename, const nCacheLoader& i_ncache_loader);
+		bool process(const std::string& i_alembic_filename, const nCacheLoader& i_ncache_loader);
 	protected:
 	};
 
