@@ -1,15 +1,5 @@
 #include "nCacheAlembic.h"
 
-#include <Alembic/AbcGeom/All.h>
-#include <Alembic/AbcCoreHDF5/All.h>
-#include <Alembic/AbcCoreOgawa/All.h>
-#include <Alembic/Util/All.h>
-#include <Alembic/Abc/All.h>
-#include <Alembic/AbcCoreAbstract/All.h>
-
-#include "MCMemoryReader.h"
-#include "MCXMemoryReader.h"
-
 using namespace nCache;
 
 Alembic::AbcGeom::OXform
@@ -99,7 +89,7 @@ bool nCacheAlembic::process(const std::string& i_alembic_filename,
 		cache_extension = "mcx";
 	size_t start_frame           = ncache_start / ncache_ticks_per_frame;
 	size_t end_frame             = ncache_end / ncache_ticks_per_frame;
-	boost::shared_ptr<AbstractMemoryReader> cache_reader_ptr;
+	CacheReaderSharedPointerType cache_reader_ptr;
 	for (size_t frame_index = start_frame; frame_index <= end_frame; frame_index++)
 	{
 		std::string per_initial_frame_full_path = (boost::format("%1%/%2%Frame%3%.%4%") % xml_reader.get_cache_directory() % xml_reader.get_cache_name() % frame_index % cache_extension).str();
@@ -153,15 +143,6 @@ bool nCacheAlembic::process(const std::string& i_alembic_filename,
 		    pSchema.set( psamp );
 			std::cout << boost::format("position_data.size() = %1%, id_data.size() = %2%") % position_data.size() % id_data.size() << std::endl;
 
-
-
-			//			const nCache::ChannelDataContainer& cdc = cache_reader_ptr->get_channels_data();
-//			nCache::ChannelDataContainer::const_iterator cdcIter = cdc.begin();
-//			nCache::ChannelDataContainer::const_iterator cdcEIter = cdc.end();
-//			for (;cdcIter!=cdcEIter;++cdcIter)
-//			{
-//				// std::cout << boost::format("cdcIter->first = '%1%'") % cdcIter->first << std::endl;
-//			}
 		}
 	    // sub frame data
 		if ((ncache_sampling_rate < ncache_ticks_per_frame) && (frame_index!=end_frame))
@@ -176,4 +157,52 @@ bool nCacheAlembic::process(const std::string& i_alembic_filename,
 		}
 	}
 	return true;
+}
+
+void nCacheAlembic::process_single_sample(const CacheReaderSharedPointerType& i_cache_reader_ptr,
+										  const std::string& i_position_channel_name,
+										  const std::string& i_id_channel_name,
+											Alembic::AbcGeom::OPointsSchema &o_pSchema)
+{
+	const nCache::ChannelDataContainer& cdc = i_cache_reader_ptr->get_channels_data();
+
+	nCache::ChannelDataContainer::const_iterator cdcPositionIter = cdc.find(i_position_channel_name);
+    std::vector<Alembic::AbcGeom::V3f> m_position;
+    std::vector<Alembic::Util::uint64_t> m_id;
+	if (cdcPositionIter!=cdc.end())
+	{
+		if (cdcPositionIter->second._type == FVCA)
+		{
+			size_t i_num_points = cdcPositionIter->second._fvca.size();
+			m_position.resize(i_num_points);
+		    for (size_t pIndex=0;pIndex<i_num_points;pIndex++)
+		    {
+		    	m_position[pIndex].x = cdcPositionIter->second._fvca[pIndex].x;
+		    	m_position[pIndex].y = cdcPositionIter->second._fvca[pIndex].y;
+		    	m_position[pIndex].z = cdcPositionIter->second._fvca[pIndex].z;
+		    }
+
+		}
+	}
+	nCache::ChannelDataContainer::const_iterator cdcIdIter = cdc.find(i_id_channel_name);
+	if (cdcIdIter!=cdc.end())
+	{
+		if (cdcIdIter->second._type == DBLA)
+		{
+			size_t i_num_points = cdcIdIter->second._dbla.size();
+			m_id.resize(i_num_points);
+		    for (size_t pIndex=0;pIndex<i_num_points;pIndex++)
+		    {
+		    	m_id[pIndex] = static_cast<Alembic::Util::uint64_t>(cdcIdIter->second._dbla[pIndex]);
+		    }
+
+		}
+
+	}
+    Alembic::AbcGeom::V3fArraySample position_data ( m_position );
+    Alembic::AbcGeom::UInt64ArraySample id_data ( m_id );
+    Alembic::AbcGeom::OPointsSchema::Sample psamp(position_data,id_data);
+    o_pSchema.set( psamp );
+	std::cout << boost::format("position_data.size() = %1%, id_data.size() = %2%") % position_data.size() % id_data.size() << std::endl;
+
 }
