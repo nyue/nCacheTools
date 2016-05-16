@@ -57,7 +57,7 @@ bool nCacheAlembic::process(const std::string& i_alembic_filename,
     Alembic::Util::uint32_t num_time_samples = (i_ncache_loader.get_xml_reader().get_time_range_end() - i_ncache_loader.get_xml_reader().get_time_range_start())/i_ncache_loader.get_xml_reader().get_particle_count_sampling_rate() + 1;
     std::cout << boost::format("num_time_samples = %1%") % num_time_samples << std::endl;
     // Create the time sampling type.
-    Alembic::AbcCoreAbstract::TimeSampling ts(ncache_sampling_rate/(6000.0*fps), ncache_start/(ncache_ticks_per_frame*fps));
+    Alembic::AbcCoreAbstract::TimeSampling ts(ncache_sampling_rate/6000.0, ncache_start/(ncache_ticks_per_frame*fps));
     std::cout << boost::format("getNumStoredTimes = %1%") % ts.getNumStoredTimes() << std::endl;
     Alembic::Util::uint32_t tsidx = iParent.getArchive().addTimeSampling(ts);
 
