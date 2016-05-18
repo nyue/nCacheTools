@@ -102,47 +102,10 @@ bool nCacheAlembic::process(const std::string& i_alembic_filename,
 
 		if (cache_reader_ptr)
 		{
-			const nCache::ChannelDataContainer& cdc = cache_reader_ptr->get_channels_data();
-
-			nCache::ChannelDataContainer::const_iterator cdcPositionIter = cdc.find(position_channel_name);
-		    std::vector<Alembic::AbcGeom::V3f> m_position;
-		    std::vector<Alembic::Util::uint64_t> m_id;
-			if (cdcPositionIter!=cdc.end())
-			{
-				if (cdcPositionIter->second._type == FVCA)
-				{
-					size_t i_num_points = cdcPositionIter->second._fvca.size();
-					m_position.resize(i_num_points);
-				    for (size_t pIndex=0;pIndex<i_num_points;pIndex++)
-				    {
-				    	m_position[pIndex].x = cdcPositionIter->second._fvca[pIndex].x;
-				    	m_position[pIndex].y = cdcPositionIter->second._fvca[pIndex].y;
-				    	m_position[pIndex].z = cdcPositionIter->second._fvca[pIndex].z;
-				    }
-
-				}
-			}
-			nCache::ChannelDataContainer::const_iterator cdcIdIter = cdc.find(id_channel_name);
-			if (cdcIdIter!=cdc.end())
-			{
-				if (cdcIdIter->second._type == DBLA)
-				{
-					size_t i_num_points = cdcIdIter->second._dbla.size();
-					m_id.resize(i_num_points);
-				    for (size_t pIndex=0;pIndex<i_num_points;pIndex++)
-				    {
-				    	m_id[pIndex] = static_cast<Alembic::Util::uint64_t>(cdcIdIter->second._dbla[pIndex]);
-				    }
-
-				}
-
-			}
-		    Alembic::AbcGeom::V3fArraySample position_data ( m_position );
-		    Alembic::AbcGeom::UInt64ArraySample id_data ( m_id );
-		    Alembic::AbcGeom::OPointsSchema::Sample psamp(position_data,id_data);
-		    pSchema.set( psamp );
-			std::cout << boost::format("position_data.size() = %1%, id_data.size() = %2%") % position_data.size() % id_data.size() << std::endl;
-
+			process_single_sample(cache_reader_ptr,
+								  position_channel_name,
+								  id_channel_name,
+								  pSchema);
 		}
 	    // sub frame data
 		if ((ncache_sampling_rate < ncache_ticks_per_frame) && (frame_index!=end_frame))
@@ -152,6 +115,19 @@ bool nCacheAlembic::process(const std::string& i_alembic_filename,
 			{
 				std::string per_sub_frame_full_path = (boost::format("%1%/%2%Frame%3%Tick%4%.%5%") % xml_reader.get_cache_directory() % xml_reader.get_cache_name() % frame_index % accumulated_ticks % cache_extension).str();
 				// std::cout << boost::format("\t""per_sub_frame_full_path '%1%'") % per_sub_frame_full_path << std::endl;
+
+				if (is_mcx)
+					cache_reader_ptr.reset(new MCXMemoryReader(per_sub_frame_full_path));
+				else
+					cache_reader_ptr.reset(new MCMemoryReader(per_sub_frame_full_path));
+
+				if (cache_reader_ptr)
+				{
+					process_single_sample(cache_reader_ptr,
+										  position_channel_name,
+										  id_channel_name,
+										  pSchema);
+				}
 				accumulated_ticks += ncache_sampling_rate;
 			}
 		}
