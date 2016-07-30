@@ -22,6 +22,10 @@ ADD_EXECUTABLE ( mcc2csv
   mcc2csv_main.cpp
   )
 
+ADD_EXECUTABLE ( mcx2csv
+  mcx2csv_main.cpp
+  )
+
 ADD_EXECUTABLE ( nCache2alembic
   nCache2alembic_main.cpp
   )
@@ -48,11 +52,19 @@ TARGET_LINK_LIBRARIES ( mccinfo
   ${NCACHE_REQUIRED_LIBRARIES}
   )
 
+TARGET_LINK_LIBRARIES ( mcxinfo
+  ${NCACHE_REQUIRED_LIBRARIES}
+  )
+
 TARGET_LINK_LIBRARIES ( xmlinfo
   ${NCACHE_REQUIRED_LIBRARIES}
   )
 
 TARGET_LINK_LIBRARIES ( mcc2csv
+  ${NCACHE_REQUIRED_LIBRARIES}
+  )
+
+TARGET_LINK_LIBRARIES ( mcx2csv
   ${NCACHE_REQUIRED_LIBRARIES}
   )
 
