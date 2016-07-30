@@ -1,0 +1,2 @@
+ADD_SUBDIRECTORY ( MCC_IOTranslator )
+ADD_SUBDIRECTORY ( MCX_IOTranslator )
