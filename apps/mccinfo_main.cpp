@@ -1,10 +1,15 @@
 #include "MCMemoryReader.h"
 #include <string>
+#include <iostream>
+#include <boost/format.hpp>
 
 int main(int argc, char** argv)
 {
 	if (argc != 2)
+	{
+		std::cerr << boost::format("Usage : %1% <mcc file>") % argv[0] << std::endl;
 		return 1;
+	}
 	google::InitGoogleLogging(argv[0]);
 	std::string mcc_filename(argv[1]);
 	nCache::MCMemoryReader mc_reader(mcc_filename);

@@ -17,6 +17,11 @@ main (int argc, char **argv)
 		nCache::nCacheLoader cache_loader;
 		cache_loader.process(xml_filename);
 	}
+	else
+	{
+		std::cerr << boost::format("Usage : %1% <ncache xml>") % argv[0] << std::endl;
+		return 1;
+	}
 	return 0;
 }
 
