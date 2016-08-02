@@ -82,10 +82,8 @@ GA_Detail::IOStatus  MCX_IOTranslator::fileLoad(GEO_Detail *gdp,
 		// Early return is valid if no suitable particle cache data is found
 		if (!num_rows_obtained)
 		    return GA_Detail::IOStatus(true);
-    	printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX num_rows %ld\n",num_rows);
 
         size_t numParticles = num_rows;
-    	printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX getPointRange %ld\n",gdp->getPointRange().getEntries());
 		for (iter = channels_data.begin();iter!=eIter;++iter)
 		{
 			std::string attribute_name =
@@ -96,7 +94,6 @@ GA_Detail::IOStatus  MCX_IOTranslator::fileLoad(GEO_Detail *gdp,
 				{
 				case nCache::DBLA :
 				{
-					printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX attribute_name '%s'\n",attribute_name.c_str());
 					// ID is special case, 32 bit int
 					if (attribute_name.compare("id")==0)
 					{
@@ -172,35 +169,7 @@ GA_Detail::IOStatus  MCX_IOTranslator::fileLoad(GEO_Detail *gdp,
 			}
 		}
 
-
-		// Print output data
-		for (int64_t row_index=0;row_index<num_rows;row_index++)
-		{
-			// Iterate the column
-			for (iter = channels_data.begin();iter!=eIter;++iter)
-			{
-				switch (iter->second._type)
-				{
-				case nCache::DBLA :
-//					csv_file << boost::format("%1%,") % iter->second._dbla[row_index];
-					break;
-				case nCache::FVCA :
-//					csv_file << boost::format("%1%,%2%,%3%,") % iter->second._fvca[row_index].x % iter->second._fvca[row_index].y % iter->second._fvca[row_index].z ;
-					break;
-				case nCache::FBCA :
-//					csv_file << boost::format("%1%,") % iter->second._fbca[row_index];
-					break;
-				default:
-					break;
-				}
-
-			}
-//			csv_file << std::endl;
-		}
-//		csv_file.close();
 	}
-
-
 
     // All done successfully
     return GA_Detail::IOStatus(true);
