@@ -1,5 +1,6 @@
 #pragma once
 
+#include <AbstractNCache_IOTranslator.h>
 #include <GU/GU_Detail.h>
 #include <GU/GU_PrimVolume.h>
 #include <GEO/GEO_AttributeHandle.h>
@@ -11,7 +12,7 @@
 #include <iostream>
 #include <stdio.h>
 
-class MCX_IOTranslator : public GEO_IOTranslator
+class MCX_IOTranslator : public AbstractNCache_IOTranslator, public GEO_IOTranslator
 {
 public:
 	MCX_IOTranslator() {}

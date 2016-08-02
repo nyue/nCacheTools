@@ -41,16 +41,19 @@ GA_Detail::IOStatus  MCX_IOTranslator::fileLoad(GEO_Detail *gdp,
 	{
 		nCache::ChannelDataContainer::const_iterator iter;
 		nCache::ChannelDataContainer::const_iterator eIter = channels_data.end();
+
+		/*
+		 * Find the number of rows which correspond to the number of particles
+		 * We iterate the container because we cannot tell in advance which
+		 * cache data type can be found i.e. DBLA or FVCA or FBCA
+		 */
 		int64_t num_rows = -1;
 		bool num_rows_obtained = false;
-		// Print CSV header
 		for (iter = channels_data.begin();iter!=eIter;++iter)
 		{
-			// std::cout << boost::format("Channel['%1%'] type = %2%") % iter->first % nCache::ChannelDataType2string(iter->second._type) << std::endl;
 			switch (iter->second._type)
 			{
 			case nCache::DBLA :
-//				csv_file << boost::format("%1%,") % iter->first;
 				if (!num_rows_obtained)
 				{
 					num_rows = iter->second._dbla.size();
@@ -58,7 +61,6 @@ GA_Detail::IOStatus  MCX_IOTranslator::fileLoad(GEO_Detail *gdp,
 				}
 				break;
 			case nCache::FVCA :
-//				csv_file << boost::format("%1%.x,%1%.y,%1%.z,") % iter->first;
 				if (!num_rows_obtained)
 				{
 					num_rows = iter->second._fvca.size();
@@ -66,18 +68,110 @@ GA_Detail::IOStatus  MCX_IOTranslator::fileLoad(GEO_Detail *gdp,
 				}
 				break;
 			case nCache::FBCA :
-//				csv_file << boost::format("%1%,") % iter->first;
 				if (!num_rows_obtained)
 				{
 					num_rows = iter->second._fbca.size();
 					num_rows_obtained = true;
 				}
 				break;
+			default:
+				break;
 			}
 		}
-//		csv_file << std::endl;
-		if (num_rows < 0)
-			throw std::runtime_error("Negative rows");
+
+		// Early return is valid if no suitable particle cache data is found
+		if (!num_rows_obtained)
+		    return GA_Detail::IOStatus(true);
+    	printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX num_rows %ld\n",num_rows);
+
+        size_t numParticles = num_rows;
+    	printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX getPointRange %ld\n",gdp->getPointRange().getEntries());
+		for (iter = channels_data.begin();iter!=eIter;++iter)
+		{
+			std::string attribute_name =
+					AbstractNCache_IOTranslator::postfixMatched(iter->first);
+			if (!attribute_name.empty())
+			{
+				switch (iter->second._type)
+				{
+				case nCache::DBLA :
+				{
+					printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX attribute_name '%s'\n",attribute_name.c_str());
+					// ID is special case, 32 bit int
+					if (attribute_name.compare("id")==0)
+					{
+						GA_RWHandleI int32_attrib(gdp->findAttribute(GA_ATTRIB_POINT,attribute_name));
+						if (!int32_attrib.isValid())
+						{
+							int32_attrib.bind(gdp->addIntTuple(GA_ATTRIB_POINT, attribute_name, 1));
+						}
+
+						int32_attrib.getAttribute()->setTypeInfo(GA_TYPE_VOID);
+
+						UT_ValArray<GA_RWHandleI::BASETYPE> int32_array(numParticles);
+						for (size_t i = 0; i<numParticles;i++)
+							// float_array.array()[i] = channel_data_array[i];
+						int32_array.array()[i] = iter->second._dbla[i];
+						gdp->setAttributeFromArray(int32_attrib.getAttribute(),gdp->getPointRange(),int32_array);
+					}
+					else
+					{
+						GA_RWHandleD double_attrib(gdp->findAttribute(GA_ATTRIB_POINT,attribute_name));
+						if (!double_attrib.isValid())
+						{
+							double_attrib.bind(gdp->addFloatTuple(GA_ATTRIB_POINT, attribute_name, 1));
+						}
+
+						double_attrib.getAttribute()->setTypeInfo(GA_TYPE_VOID);
+
+						UT_ValArray<GA_RWHandleD::BASETYPE> double_array(numParticles);
+						for (size_t i = 0; i<numParticles;i++)
+							// float_array.array()[i] = channel_data_array[i];
+						double_array.array()[i] = iter->second._dbla[i];
+						gdp->setAttributeFromArray(double_attrib.getAttribute(),gdp->getPointRange(),double_array);
+					}
+				}
+				break;
+				case nCache::FVCA :
+					// P is special case for Houdini points
+					if (attribute_name.compare("P")==0)
+					{
+						gdp->appendPointBlock(numParticles);
+						GA_Range p_range = gdp->getPointRange();
+
+						UT_ValArray<UT_Vector3> v3_array(numParticles);
+						for (size_t i = 0; i<numParticles;i++)
+							v3_array.array()[i].assign(iter->second._fvca[i].x,
+													   iter->second._fvca[i].y,
+													   iter->second._fvca[i].z);
+						gdp->setPos3FromArray(p_range,v3_array);
+					}
+					else
+					{
+                        GA_RWHandleV3 v3_attrib(gdp->findAttribute(GA_ATTRIB_POINT,attribute_name));
+                        if (!v3_attrib.isValid())
+                        {
+                            v3_attrib.bind(gdp->addFloatTuple(GA_ATTRIB_POINT, attribute_name, 3));
+                        }
+
+                        v3_attrib.getAttribute()->setTypeInfo(GA_TYPE_VECTOR);
+
+                        UT_ValArray<UT_Vector3> v3_array(numParticles);
+                        for (size_t i = 0; i<numParticles;i++)
+                            v3_array.array()[i].assign(iter->second._fvca[i].x,
+                            						   iter->second._fvca[i].y,
+													   iter->second._fvca[i].z);
+                        gdp->setAttributeFromArray(v3_attrib.getAttribute(),gdp->getPointRange(),v3_array);
+					}
+					break;
+				case nCache::FBCA :
+					break;
+				default:
+					break;
+				}
+			}
+		}
+
 
 		// Print output data
 		for (int64_t row_index=0;row_index<num_rows;row_index++)
@@ -95,6 +189,8 @@ GA_Detail::IOStatus  MCX_IOTranslator::fileLoad(GEO_Detail *gdp,
 					break;
 				case nCache::FBCA :
 //					csv_file << boost::format("%1%,") % iter->second._fbca[row_index];
+					break;
+				default:
 					break;
 				}
 
