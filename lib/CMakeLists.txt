@@ -1,3 +1,9 @@
+IF ( BUILD_XML_TOOLS )
+  ADD_LIBRARY ( nCacheXMLParser STATIC
+    XMLReader.cpp
+	)
+ENDIF ()
+
 ADD_LIBRARY ( nCacheParser STATIC
   ChannelInfo.cpp
   nCacheLoader.cpp
@@ -7,6 +13,5 @@ ADD_LIBRARY ( nCacheParser STATIC
   MCFileReader.cpp
   MCMemoryReader.cpp
   MCXMemoryReader.cpp
-  XMLReader.cpp
   nCacheAlembic.cpp
   )
