@@ -84,6 +84,42 @@ GA_Detail::IOStatus  MCX_IOTranslator::fileLoad(GEO_Detail *gdp,
 		    return GA_Detail::IOStatus(true);
 
         size_t numParticles = num_rows;
+
+        // MUST handle "P" first as it sets the point range for all the other
+        // attributes
+        bool P_processed = false;
+		for (iter = channels_data.begin();iter!=eIter;++iter)
+		{
+			std::string attribute_name =
+					AbstractNCache_IOTranslator::postfixMatched(iter->first);
+			if (!attribute_name.empty())
+			{
+				switch (iter->second._type)
+				{
+				case nCache::FVCA :
+					// P is special case for Houdini points
+					if (attribute_name.compare("P")==0)
+					{
+						gdp->appendPointBlock(numParticles);
+						GA_Range p_range = gdp->getPointRange();
+
+						UT_ValArray<UT_Vector3> v3_array(numParticles);
+						for (size_t i = 0; i<numParticles;i++)
+							v3_array.array()[i].assign(iter->second._fvca[i].x,
+													   iter->second._fvca[i].y,
+													   iter->second._fvca[i].z);
+						gdp->setPos3FromArray(p_range,v3_array);
+					}
+					P_processed = true;
+					break;
+				default:
+					break;
+				}
+			}
+		}
+        // Other channels/attributes
+        if (!P_processed)
+        	return GA_Detail::IOStatus(false);
 		for (iter = channels_data.begin();iter!=eIter;++iter)
 		{
 			std::string attribute_name =
@@ -107,8 +143,10 @@ GA_Detail::IOStatus  MCX_IOTranslator::fileLoad(GEO_Detail *gdp,
 
 						UT_ValArray<GA_RWHandleI::BASETYPE> int32_array(numParticles);
 						for (size_t i = 0; i<numParticles;i++)
+						{
 							// float_array.array()[i] = channel_data_array[i];
-						int32_array.array()[i] = iter->second._dbla[i];
+							int32_array.array()[i] = iter->second._dbla[i];
+						}
 						gdp->setAttributeFromArray(int32_attrib.getAttribute(),gdp->getPointRange(),int32_array);
 					}
 					else
@@ -130,20 +168,6 @@ GA_Detail::IOStatus  MCX_IOTranslator::fileLoad(GEO_Detail *gdp,
 				}
 				break;
 				case nCache::FVCA :
-					// P is special case for Houdini points
-					if (attribute_name.compare("P")==0)
-					{
-						gdp->appendPointBlock(numParticles);
-						GA_Range p_range = gdp->getPointRange();
-
-						UT_ValArray<UT_Vector3> v3_array(numParticles);
-						for (size_t i = 0; i<numParticles;i++)
-							v3_array.array()[i].assign(iter->second._fvca[i].x,
-													   iter->second._fvca[i].y,
-													   iter->second._fvca[i].z);
-						gdp->setPos3FromArray(p_range,v3_array);
-					}
-					else
 					{
                         GA_RWHandleV3 v3_attrib(gdp->findAttribute(GA_ATTRIB_POINT,attribute_name));
                         if (!v3_attrib.isValid())
