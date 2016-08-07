@@ -43,6 +43,14 @@ namespace nCache
 
 	struct ChannelInfo
 	{
+		ChannelInfo()
+		: _sampling_type(SAMPLING_REGULAR)
+		, _sampling_rate(0)
+		, _start_time(0)
+		, _end_time(0)
+		{
+
+		};
 		enum SamplingType { SAMPLING_REGULAR, SAMPLING_IRREGULAR };
 		// std::string  _channel_name;
 		std::string  _channel_type;

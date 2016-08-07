@@ -1,18 +1,6 @@
 #pragma once
 
 #include "ChannelInfo.h"
-#include <xercesc/dom/DOM.hpp>
-#include <xercesc/dom/DOMDocument.hpp>
-#include <xercesc/dom/DOMDocumentType.hpp>
-#include <xercesc/dom/DOMElement.hpp>
-#include <xercesc/dom/DOMImplementation.hpp>
-#include <xercesc/dom/DOMImplementationLS.hpp>
-#include <xercesc/dom/DOMNodeIterator.hpp>
-#include <xercesc/dom/DOMNodeList.hpp>
-#include <xercesc/dom/DOMText.hpp>
-
-#include <xercesc/parsers/XercesDOMParser.hpp>
-#include <xercesc/util/XMLUni.hpp>
 
 #include <string>
 #include <stdexcept>
@@ -54,13 +42,6 @@ namespace nCache
 
 		void debugDump() const;
 	protected:
-		void readConfigFile(const std::string&) throw(std::runtime_error);
-		void handle_cacheType(xercesc::DOMElement* currentElement);
-		void handle_time(xercesc::DOMElement* currentElement);
-		void handle_cacheTimePerFram(xercesc::DOMElement* currentElement);
-		void handle_Channels(xercesc::DOMElement* currentElement);
-		void handle_Channel(xercesc::DOMElement* i_channel_element, std::string& o_channel_name, ChannelInfo& o_channel);
-		void get_string_attribute(xercesc::DOMElement* i_element, const std::string& i_attribute, std::string& o_string) const;
 		/*!
 		 * \todo Switch to returning bool and actual result as an output
 		 *       parameter
@@ -90,16 +71,6 @@ namespace nCache
 		std::string _base_cache_name;
 		std::string _cache_directory;
 	private:
-		xercesc::XercesDOMParser *m_ConfigFileParser;
-
-		// Internal class use only. Hold Xerces data in UTF-16 SMLCh type.
-
-		XMLCh* TAG_Autodesk_CacheFile;
-		XMLCh* TAG_cacheType;
-		XMLCh* TAG_time;
-		XMLCh* TAG_cacheTimePerFrame;
-
-		XMLCh* TAG_Channels;
 	};
 } // namespace nCache
 // == Emacs ================

@@ -4,7 +4,10 @@
 int main(int argc, char** argv)
 {
 	if (argc != 2)
+	{
+		std::cout << boost::format("Usage %1% <ncache-xml>") % argv[0] << std::endl;
 		return 1;
+	}
 	google::InitGoogleLogging(argv[0]);
 	std::string xml_filename(argv[1]);
 	nCache::XMLReader xml_reader;

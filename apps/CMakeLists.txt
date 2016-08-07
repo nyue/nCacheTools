@@ -1,8 +1,6 @@
-IF ( BUILD_XML_TOOLS )
-  ADD_EXECUTABLE ( nCacheInfo
-	nCacheInfo_main.cpp
-	)
-ENDIF ()
+ADD_EXECUTABLE ( nCacheInfo
+  nCacheInfo_main.cpp
+  )
 
 ADD_EXECUTABLE ( binary_files_tutorial
   binary_files_tutorial_main.cpp
@@ -16,11 +14,9 @@ ADD_EXECUTABLE ( mcxinfo
   mcxinfo_main.cpp
   )
 
-IF ( BUILD_XML_TOOLS )
-  ADD_EXECUTABLE ( xmlinfo
-	xmlinfo_main.cpp
-	)
-ENDIF ()
+ADD_EXECUTABLE ( xmlinfo
+  xmlinfo_main.cpp
+  )
 
 ADD_EXECUTABLE ( mcc2csv
   mcc2csv_main.cpp
@@ -36,13 +32,9 @@ IF ( BUILD_ALEMBIC_TOOLS )
 	)
 ENDIF ()
 
-# MESSAGE ( "Boost_LIBRARIES = ${Boost_LIBRARIES}" )
-
-IF ( BUILD_XML_TOOLS )
-  TARGET_LINK_LIBRARIES ( nCacheInfo
-	${NCACHE_REQUIRED_LIBRARIES}
-	)
-ENDIF ()
+TARGET_LINK_LIBRARIES ( nCacheInfo
+  ${NCACHE_REQUIRED_LIBRARIES}
+  )
 
 TARGET_LINK_LIBRARIES ( binary_files_tutorial
   ${NCACHE_REQUIRED_LIBRARIES}
@@ -56,11 +48,9 @@ TARGET_LINK_LIBRARIES ( mcxinfo
   ${NCACHE_REQUIRED_LIBRARIES}
   )
 
-IF ( BUILD_XML_TOOLS )
-  TARGET_LINK_LIBRARIES ( xmlinfo
-	${NCACHE_REQUIRED_LIBRARIES}
-	)
-ENDIF ()
+TARGET_LINK_LIBRARIES ( xmlinfo
+  ${NCACHE_REQUIRED_LIBRARIES}
+  )
 
 TARGET_LINK_LIBRARIES ( mcc2csv
   ${NCACHE_REQUIRED_LIBRARIES}
