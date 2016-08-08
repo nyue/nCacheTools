@@ -2,11 +2,16 @@
 
 #include <map>
 #include <string>
+#include <boost/shared_ptr.hpp>
+#include "AbstractMemoryReader.h"
 
 class AbstractNCache_IOTranslator
 {
 protected:
     typedef std::map<std::string,std::string> NCacheChannelNamePostFixToHoudiniAttributeNameMap;
+	typedef boost::shared_ptr<nCache::AbstractMemoryReader> AbstractMemoryReaderSharedPtr;
+	AbstractMemoryReaderSharedPtr _memory_reader_ptr;
+	std::string _file_extension;
 public:
     AbstractNCache_IOTranslator() {}
     virtual ~AbstractNCache_IOTranslator() {}
