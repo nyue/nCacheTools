@@ -6,8 +6,8 @@ ADD_EXECUTABLE ( binary_files_tutorial
   binary_files_tutorial_main.cpp
   )
 
-ADD_EXECUTABLE ( mccinfo
-  mccinfo_main.cpp
+ADD_EXECUTABLE ( mcinfo
+  mcinfo_main.cpp
   )
 
 ADD_EXECUTABLE ( mcxinfo
@@ -18,8 +18,8 @@ ADD_EXECUTABLE ( xmlinfo
   xmlinfo_main.cpp
   )
 
-ADD_EXECUTABLE ( mcc2csv
-  mcc2csv_main.cpp
+ADD_EXECUTABLE ( mc2csv
+  mc2csv_main.cpp
   )
 
 ADD_EXECUTABLE ( mcx2csv
@@ -40,7 +40,7 @@ TARGET_LINK_LIBRARIES ( binary_files_tutorial
   ${NCACHE_REQUIRED_LIBRARIES}
   )
 
-TARGET_LINK_LIBRARIES ( mccinfo
+TARGET_LINK_LIBRARIES ( mcinfo
   ${NCACHE_REQUIRED_LIBRARIES}
   )
 
@@ -52,7 +52,7 @@ TARGET_LINK_LIBRARIES ( xmlinfo
   ${NCACHE_REQUIRED_LIBRARIES}
   )
 
-TARGET_LINK_LIBRARIES ( mcc2csv
+TARGET_LINK_LIBRARIES ( mc2csv
   ${NCACHE_REQUIRED_LIBRARIES}
   )
 
