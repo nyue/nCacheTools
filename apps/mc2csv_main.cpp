@@ -3,12 +3,13 @@
 #include <iostream>
 #include <fstream>
 #include <iterator>
+#include <boost/algorithm/string/predicate.hpp>
 
 int main(int argc, char** argv)
 {
 	if (argc != 3)
 	{
-		fprintf(stderr,"Usage : %s <mcc-input-file> <csv-output-file>\n",argv[0]);
+		fprintf(stderr,"Usage : %s <mc-input-file> <csv-output-file>\n",argv[0]);
 		return 1;
 	}
 	google::InitGoogleLogging(argv[0]);
@@ -70,13 +71,19 @@ int main(int argc, char** argv)
 				switch (iter->second._type)
 				{
 				case nCache::DBLA :
-					csv_file << boost::format("%1%,") % iter->second._dbla[row_index];
+					if (boost::algorithm::ends_with(iter->first, "_id"))
+						csv_file << boost::format("%1%,") % int(iter->second._dbla[row_index]);
+					else
+						csv_file << boost::format("%1%,") % iter->second._dbla[row_index];
 					break;
 				case nCache::FVCA :
 					csv_file << boost::format("%1%,%2%,%3%,") % iter->second._fvca[row_index].x % iter->second._fvca[row_index].y % iter->second._fvca[row_index].z ;
 					break;
 				case nCache::FBCA :
-					csv_file << boost::format("%1%,") % iter->second._fbca[row_index];
+					if (boost::algorithm::ends_with(iter->first, "_id"))
+						csv_file << boost::format("%1%,") % int(iter->second._fbca[row_index]);
+					else
+						csv_file << boost::format("%1%,") % iter->second._fbca[row_index];
 					break;
 				}
 
