@@ -1,15 +1,17 @@
 #pragma once
 
+#include <translators/DagTranslator.h>
 #include <translators/shape/ShapeTranslator.h>
 #include <ai.h>
 
+// class nCacheTranslator : public CDagTranslator
 class nCacheTranslator : public CShapeTranslator
 {
 public:
-	virtual AtNode* Init(CArnoldSession* session, MDagPath& dagPath, MString outputAttr="");
+	// virtual AtNode* Init(CArnoldSession* session, MDagPath& dagPath, MString outputAttr="");
 	bool RequiresMotionData();
 	static void* creator();
-	static void NodeInitializer(CAbTranslator context);
+	// static void NodeInitializer(CAbTranslator context);
 protected:
 	virtual AtNode* CreateArnoldNodes();
 	virtual void Export(AtNode* blocker);
