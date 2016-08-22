@@ -60,7 +60,7 @@ ELSEIF ( BUILD_MTOA_TOOLS )
   INCLUDE_DIRECTORIES ( ${MTOA_INCLUDE_DIR} )
   SET ( MTOA_REQUIRED_LIBRARIES
     ${MtoA_mtoa_api_LIBRARY}
-    ${Arnold_ai_LIBRARY}
+    # ${Arnold_ai_LIBRARY}
     ${MAYA_OpenMayaAnim_LIBRARY}
     ${MAYA_OpenMayaRender_LIBRARY}
     ${MAYA_OpenMaya_LIBRARY}
