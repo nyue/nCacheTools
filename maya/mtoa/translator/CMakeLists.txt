@@ -19,6 +19,11 @@ IF (APPLE)
     PREFIX ""
     )
 ELSEIF (WIN32)
+  SET_TARGET_PROPERTIES ( nCacheTranslator
+    PROPERTIES
+    LINK_FLAGS "/export:initializeExtension /export:deinitializeExtension"
+    )
+
 ELSE (APPLE)
   SET_TARGET_PROPERTIES ( nCacheTranslator
     PROPERTIES
