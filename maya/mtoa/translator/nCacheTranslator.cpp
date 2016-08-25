@@ -6,8 +6,10 @@
 #include <stdlib.h>
 #include <boost/format.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include <MCXMemoryReader.h>
 #include <XMLReader.h>
+#include <OpenEXR/ImathVec.h>
 
 //AtNode* nCacheTranslator::Init(CArnoldSession* session,
 //							   MDagPath& dagPath,
@@ -92,6 +94,10 @@ AtNode* nCacheTranslator::CreateArnoldNodes()
 {
 	MStatus status;
     AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes()");
+    std::vector<Imath::V3f> arnold_points_position;
+    std::vector<float> arnold_points_radius;
+    const float default_radius = 0.1f;
+    AtNode* arnold_points = 0;
     {
     	MFnDagNode fnGPUCache(m_dagPath);
     	MPlug playFromCachePlug = fnGPUCache.findPlug("playFromCache");
@@ -128,36 +134,64 @@ AtNode* nCacheTranslator::CreateArnoldNodes()
             			xml_reader.read(xmlCacheFileNameString.asChar());
                 		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache cache format = '%s'",xml_reader.getCacheFormat().c_str());
                 		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache cache type = '%s'",xml_reader.getCacheType().c_str());
-            		}
-            		MTime sourceStart;
-            		getDataFromPlug(fnNode,"sourceStart",sourceStart,status);
-            		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache source start = %g",sourceStart.value());
 
-            		MTime sourceEnd;
-            		getDataFromPlug(fnNode,"sourceEnd",sourceEnd,status);
-            		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache source end = %g",sourceEnd.value());
+                		MTime sourceStart;
+                		getDataFromPlug(fnNode,"sourceStart",sourceStart,status);
+                		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache source start = %g",sourceStart.value());
 
-            		MTime startFrame;
-            		getDataFromPlug(fnNode,"startFrame",startFrame,status);
-            		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache start frame = %g",startFrame.value());
+                		MTime sourceEnd;
+                		getDataFromPlug(fnNode,"sourceEnd",sourceEnd,status);
+                		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache source end = %g",sourceEnd.value());
 
-            		MTime currentFrame;
-            		getDataFromPlug(fnNode,"time",currentFrame,status);
-            		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache current frame = %g",currentFrame.value());
+                		MTime startFrame;
+                		getDataFromPlug(fnNode,"startFrame",startFrame,status);
+                		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache start frame = %g",startFrame.value());
 
-            		MString dataCacheFileNameString = cachePathString + cacheNameString + MString((boost::format("Frame%d.%s") % currentFrame.value() % "mcx").str().c_str());
-            		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache dataCacheFileNameString '%s'",dataCacheFileNameString.asChar());
+                		MTime currentFrame;
+                		getDataFromPlug(fnNode,"time",currentFrame,status);
+                		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache current frame = %g",currentFrame.value());
 
-            		if ( boost::filesystem::exists( dataCacheFileNameString.asChar() ) )
-            		{
-            			nCache::MCXMemoryReader mcx_reader(dataCacheFileNameString.asChar());
+                		MString dataCacheFileNameString = cachePathString + cacheNameString + MString((boost::format("Frame%d.%s") % currentFrame.value() % xml_reader.getCacheFormat()).str().c_str());
+                		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache dataCacheFileNameString '%s'",dataCacheFileNameString.asChar());
+
+                		if ( boost::filesystem::exists( dataCacheFileNameString.asChar() ) )
+                		{
+                			nCache::MCXMemoryReader mcx_reader(dataCacheFileNameString.asChar());
+                			// const nCache::ChannelDataContainer& channel_data = mcx_reader.get_channels_data();
+                			nCache::ChannelDataContainer::const_iterator chIter = mcx_reader.get_channels_data().begin();
+                			nCache::ChannelDataContainer::const_iterator chEIter = mcx_reader.get_channels_data().end();
+                			for (;chIter!=chEIter;++chIter)
+                			{
+                        		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache channel key '%s'",chIter->first.c_str());
+                        		if (boost::algorithm::ends_with(chIter->first, "_position"))
+                        		{
+                            		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache particle position count %d",chIter->second._fvca.size());
+
+                            		size_t num_particles = chIter->second._fvca.size();
+                            		for (size_t pid = 0; pid < num_particles; pid++)
+                            		{
+                            			arnold_points_position.push_back(Imath::V3f(chIter->second._fvca[pid].x,chIter->second._fvca[pid].y,chIter->second._fvca[pid].z));
+                            			arnold_points_radius.push_back(default_radius);
+                            		}
+                        		}
+
+                			}
+                			if (!arnold_points_position.empty())
+                			{
+                				arnold_points = AddArnoldNode("points");
+
+                			    AiNodeSetArray(arnold_points, "points", AiArrayConvert(arnold_points_position.size(), 1, AI_TYPE_POINT, arnold_points_position.data()));
+                			    AiNodeSetArray(arnold_points, "radius", AiArrayConvert(arnold_points_radius.size(), 1, AI_TYPE_FLOAT, arnold_points_radius.data()));
+
+                			}
+                		}
             		}
 
             	}
         	}
     	}
     }
-	return AddArnoldNode("sphere");
+    return arnold_points;
 }
 
 void nCacheTranslator::Export(AtNode* atNode)
