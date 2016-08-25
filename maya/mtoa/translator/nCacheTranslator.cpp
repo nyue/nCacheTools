@@ -4,6 +4,10 @@
 #include <maya/MFnStringData.h>
 #include <maya/MGlobal.h>
 #include <stdlib.h>
+#include <boost/format.hpp>
+#include <boost/filesystem.hpp>
+#include <MCXMemoryReader.h>
+#include <XMLReader.h>
 
 //AtNode* nCacheTranslator::Init(CArnoldSession* session,
 //							   MDagPath& dagPath,
@@ -118,6 +122,13 @@ AtNode* nCacheTranslator::CreateArnoldNodes()
             		MString xmlCacheFileNameString = cachePathString + cacheNameString + MString(".xml");
             		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache xmlCacheFileNameString '%s'",xmlCacheFileNameString.asChar());
 
+            		nCache::XMLReader xml_reader;
+            		if ( boost::filesystem::exists( xmlCacheFileNameString.asChar() ) )
+            		{
+            			xml_reader.read(xmlCacheFileNameString.asChar());
+                		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache cache format = '%s'",xml_reader.getCacheFormat().c_str());
+                		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache cache type = '%s'",xml_reader.getCacheType().c_str());
+            		}
             		MTime sourceStart;
             		getDataFromPlug(fnNode,"sourceStart",sourceStart,status);
             		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache source start = %g",sourceStart.value());
@@ -129,6 +140,19 @@ AtNode* nCacheTranslator::CreateArnoldNodes()
             		MTime startFrame;
             		getDataFromPlug(fnNode,"startFrame",startFrame,status);
             		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache start frame = %g",startFrame.value());
+
+            		MTime currentFrame;
+            		getDataFromPlug(fnNode,"time",currentFrame,status);
+            		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache current frame = %g",currentFrame.value());
+
+            		MString dataCacheFileNameString = cachePathString + cacheNameString + MString((boost::format("Frame%d.%s") % currentFrame.value() % "mcx").str().c_str());
+            		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache dataCacheFileNameString '%s'",dataCacheFileNameString.asChar());
+
+            		if ( boost::filesystem::exists( dataCacheFileNameString.asChar() ) )
+            		{
+            			nCache::MCXMemoryReader mcx_reader(dataCacheFileNameString.asChar());
+            		}
+
             	}
         	}
     	}
