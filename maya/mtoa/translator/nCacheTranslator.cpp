@@ -7,6 +7,7 @@
 #include <boost/format.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/multi_array.hpp>
 #include <MCXMemoryReader.h>
 #include <XMLReader.h>
 #include <OpenEXR/ImathVec.h>
@@ -95,8 +96,10 @@ AtNode* nCacheTranslator::CreateArnoldNodes()
 	MStatus status;
     AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes()");
     std::vector<Imath::V3f> arnold_points_position;
+    std::vector<Imath::V3f> arnold_points_velocity;
+    std::vector<int> arnold_points_particle_id;
     std::vector<float> arnold_points_radius;
-    const float default_radius = 0.1f;
+    const float default_radius = 1.0f;
     AtNode* arnold_points = 0;
     {
     	MFnDagNode fnGPUCache(m_dagPath);
@@ -174,13 +177,55 @@ AtNode* nCacheTranslator::CreateArnoldNodes()
                             			arnold_points_radius.push_back(default_radius);
                             		}
                         		}
+                        		if (boost::algorithm::ends_with(chIter->first, "_velocity"))
+                        		{
+                            		size_t num_particles = chIter->second._fvca.size();
+                            		for (size_t pid = 0; pid < num_particles; pid++)
+                            		{
+                            			arnold_points_velocity.push_back(Imath::V3f(chIter->second._fvca[pid].x,chIter->second._fvca[pid].y,chIter->second._fvca[pid].z));
+                            		}
+                        		}
+
+                        		if (boost::algorithm::ends_with(chIter->first, "_id"))
+                        		{
+                            		size_t num_particles = chIter->second._dbla.size();
+                            		for (size_t pid = 0; pid < num_particles; pid++)
+                            		{
+                            			arnold_points_particle_id.push_back(chIter->second._dbla[pid]);
+                            		}
+                        		}
 
                 			}
                 			if (!arnold_points_position.empty())
                 			{
                 				arnold_points = AddArnoldNode("points");
 
-                			    AiNodeSetArray(arnold_points, "points", AiArrayConvert(arnold_points_position.size(), 1, AI_TYPE_POINT, arnold_points_position.data()));
+                				if (!arnold_points_velocity.empty() && (arnold_points_velocity.size() == arnold_points_position.size()))
+                				{
+                            		size_t num_particles = arnold_points_velocity.size();
+
+                					float fps_1 = xml_reader.get_cacheTimePerFrame_TimePerFrame()/6000.f;
+                					typedef boost::multi_array<float, 3> MotionBlurredPositionType;
+                					typedef MotionBlurredPositionType::index index;
+                					MotionBlurredPositionType arnold_points_motion_blurred_position(boost::extents[2][num_particles][3]);
+                            		for (size_t pid = 0; pid < num_particles; pid++)
+                            		{
+                            			// start
+                            			arnold_points_motion_blurred_position[0][pid][0] = arnold_points_position[pid].x;
+                            			arnold_points_motion_blurred_position[0][pid][1] = arnold_points_position[pid].y;
+                            			arnold_points_motion_blurred_position[0][pid][2] = arnold_points_position[pid].z;
+
+                            			// end (blurred)
+                            			arnold_points_motion_blurred_position[1][pid][0] = arnold_points_position[pid].x + (fps_1 * arnold_points_velocity[pid].x);
+                            			arnold_points_motion_blurred_position[1][pid][1] = arnold_points_position[pid].y + (fps_1 * arnold_points_velocity[pid].y);
+                            			arnold_points_motion_blurred_position[1][pid][2] = arnold_points_position[pid].z + (fps_1 * arnold_points_velocity[pid].z);
+                            		}
+
+                					AiNodeSetArray(arnold_points, "points", AiArrayConvert(arnold_points_position.size(), 2, AI_TYPE_POINT, arnold_points_motion_blurred_position.data()));
+
+                				}
+                				else
+                					AiNodeSetArray(arnold_points, "points", AiArrayConvert(arnold_points_position.size(), 1, AI_TYPE_POINT, arnold_points_position.data()));
                 			    AiNodeSetArray(arnold_points, "radius", AiArrayConvert(arnold_points_radius.size(), 1, AI_TYPE_FLOAT, arnold_points_radius.data()));
 
                 			}

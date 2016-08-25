@@ -56,6 +56,10 @@ void XMLReader::read(const std::string& i_ncache_xml_filename)
 					_cache_type = pt.get<std::string>("Autodesk_Cache_File.cacheType.<xmlattr>.Type");
 					_cache_format = pt.get<std::string>("Autodesk_Cache_File.cacheType.<xmlattr>.Format");
 				}
+				else if (v.first.compare("cacheTimePerFrame")==0)
+				{
+					_cacheTimePerFrame_TimePerFrame = atoi(pt.get<std::string>("Autodesk_Cache_File.cacheTimePerFrame.<xmlattr>.TimePerFrame").c_str());
+				}
 				else
 				{
 					// std::cout << boost::format("%1% : %2%") % v.first % v.second.data() << std::endl;
