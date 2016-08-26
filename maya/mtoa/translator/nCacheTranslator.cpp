@@ -10,7 +10,6 @@
 #include <boost/multi_array.hpp>
 #include <MCXMemoryReader.h>
 #include <XMLReader.h>
-#include <OpenEXR/ImathVec.h>
 
 //AtNode* nCacheTranslator::Init(CArnoldSession* session,
 //							   MDagPath& dagPath,
@@ -95,11 +94,6 @@ AtNode* nCacheTranslator::CreateArnoldNodes()
 {
 	MStatus status;
     AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes()");
-    std::vector<Imath::V3f> arnold_points_position;
-    std::vector<Imath::V3f> arnold_points_velocity;
-    std::vector<int> arnold_points_particle_id;
-    std::vector<float> arnold_points_radius;
-    const float default_radius = 1.0f;
     AtNode* arnold_points = 0;
     {
     	MFnDagNode fnGPUCache(m_dagPath);
@@ -154,82 +148,14 @@ AtNode* nCacheTranslator::CreateArnoldNodes()
                 		getDataFromPlug(fnNode,"time",currentFrame,status);
                 		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache current frame = %g",currentFrame.value());
 
-                		MString dataCacheFileNameString = cachePathString + cacheNameString + MString((boost::format("Frame%d.%s") % currentFrame.value() % xml_reader.getCacheFormat()).str().c_str());
-                		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache dataCacheFileNameString '%s'",dataCacheFileNameString.asChar());
+        				float fps_1 = xml_reader.get_cacheTimePerFrame_TimePerFrame()/6000.f;
 
-                		if ( boost::filesystem::exists( dataCacheFileNameString.asChar() ) )
-                		{
-                			nCache::MCXMemoryReader mcx_reader(dataCacheFileNameString.asChar());
-                			// const nCache::ChannelDataContainer& channel_data = mcx_reader.get_channels_data();
-                			nCache::ChannelDataContainer::const_iterator chIter = mcx_reader.get_channels_data().begin();
-                			nCache::ChannelDataContainer::const_iterator chEIter = mcx_reader.get_channels_data().end();
-                			for (;chIter!=chEIter;++chIter)
-                			{
-                        		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache channel key '%s'",chIter->first.c_str());
-                        		if (boost::algorithm::ends_with(chIter->first, "_position"))
-                        		{
-                            		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache particle position count %d",chIter->second._fvca.size());
-
-                            		size_t num_particles = chIter->second._fvca.size();
-                            		for (size_t pid = 0; pid < num_particles; pid++)
-                            		{
-                            			arnold_points_position.push_back(Imath::V3f(chIter->second._fvca[pid].x,chIter->second._fvca[pid].y,chIter->second._fvca[pid].z));
-                            			arnold_points_radius.push_back(default_radius);
-                            		}
-                        		}
-                        		if (boost::algorithm::ends_with(chIter->first, "_velocity"))
-                        		{
-                            		size_t num_particles = chIter->second._fvca.size();
-                            		for (size_t pid = 0; pid < num_particles; pid++)
-                            		{
-                            			arnold_points_velocity.push_back(Imath::V3f(chIter->second._fvca[pid].x,chIter->second._fvca[pid].y,chIter->second._fvca[pid].z));
-                            		}
-                        		}
-
-                        		if (boost::algorithm::ends_with(chIter->first, "_id"))
-                        		{
-                            		size_t num_particles = chIter->second._dbla.size();
-                            		for (size_t pid = 0; pid < num_particles; pid++)
-                            		{
-                            			arnold_points_particle_id.push_back(chIter->second._dbla[pid]);
-                            		}
-                        		}
-
-                			}
-                			if (!arnold_points_position.empty())
-                			{
-                				arnold_points = AddArnoldNode("points");
-
-                				if (!arnold_points_velocity.empty() && (arnold_points_velocity.size() == arnold_points_position.size()))
-                				{
-                            		size_t num_particles = arnold_points_velocity.size();
-
-                					float fps_1 = xml_reader.get_cacheTimePerFrame_TimePerFrame()/6000.f;
-                					typedef boost::multi_array<float, 3> MotionBlurredPositionType;
-                					typedef MotionBlurredPositionType::index index;
-                					MotionBlurredPositionType arnold_points_motion_blurred_position(boost::extents[2][num_particles][3]);
-                            		for (size_t pid = 0; pid < num_particles; pid++)
-                            		{
-                            			// start
-                            			arnold_points_motion_blurred_position[0][pid][0] = arnold_points_position[pid].x;
-                            			arnold_points_motion_blurred_position[0][pid][1] = arnold_points_position[pid].y;
-                            			arnold_points_motion_blurred_position[0][pid][2] = arnold_points_position[pid].z;
-
-                            			// end (blurred)
-                            			arnold_points_motion_blurred_position[1][pid][0] = arnold_points_position[pid].x + (fps_1 * arnold_points_velocity[pid].x);
-                            			arnold_points_motion_blurred_position[1][pid][1] = arnold_points_position[pid].y + (fps_1 * arnold_points_velocity[pid].y);
-                            			arnold_points_motion_blurred_position[1][pid][2] = arnold_points_position[pid].z + (fps_1 * arnold_points_velocity[pid].z);
-                            		}
-
-                					AiNodeSetArray(arnold_points, "points", AiArrayConvert(arnold_points_position.size(), 2, AI_TYPE_POINT, arnold_points_motion_blurred_position.data()));
-
-                				}
-                				else
-                					AiNodeSetArray(arnold_points, "points", AiArrayConvert(arnold_points_position.size(), 1, AI_TYPE_POINT, arnold_points_position.data()));
-                			    AiNodeSetArray(arnold_points, "radius", AiArrayConvert(arnold_points_radius.size(), 1, AI_TYPE_FLOAT, arnold_points_radius.data()));
-
-                			}
-                		}
+                		arnold_points = Emit(currentFrame.value(),
+                				sourceStart.value(),
+								sourceEnd.value(),fps_1,
+                				cachePathString.asChar(),
+								cacheNameString.asChar(),
+								xml_reader.getCacheFormat());
             		}
 
             	}
@@ -242,6 +168,103 @@ AtNode* nCacheTranslator::CreateArnoldNodes()
 void nCacheTranslator::Export(AtNode* atNode)
 {
     AiMsgInfo("[nCacheTranslator extension] Exporting() %s", GetMayaNodeName().asChar());
+}
+
+void nCacheTranslator::ExtractDataSet(const std::string& i_dataCacheFileName, DataSet& o_dataSet)
+{
+	const float default_radius = 1.0f;
+	nCache::MCXMemoryReader current_frame_mcx_reader(i_dataCacheFileName);
+	nCache::ChannelDataContainer::const_iterator chIter = current_frame_mcx_reader.get_channels_data().begin();
+	nCache::ChannelDataContainer::const_iterator chEIter = current_frame_mcx_reader.get_channels_data().end();
+	for (;chIter!=chEIter;++chIter)
+	{
+		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache channel key '%s'",chIter->first.c_str());
+		if (boost::algorithm::ends_with(chIter->first, "_position"))
+		{
+    		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache particle position count %d",chIter->second._fvca.size());
+
+    		size_t num_particles = chIter->second._fvca.size();
+    		for (size_t pid = 0; pid < num_particles; pid++)
+    		{
+    			o_dataSet._position.push_back(Imath::V3f(chIter->second._fvca[pid].x,chIter->second._fvca[pid].y,chIter->second._fvca[pid].z));
+    			o_dataSet._radius.push_back(default_radius);
+    		}
+		}
+		if (boost::algorithm::ends_with(chIter->first, "_velocity"))
+		{
+    		size_t num_particles = chIter->second._fvca.size();
+    		for (size_t pid = 0; pid < num_particles; pid++)
+    		{
+    			o_dataSet._velocity.push_back(Imath::V3f(chIter->second._fvca[pid].x,chIter->second._fvca[pid].y,chIter->second._fvca[pid].z));
+    		}
+		}
+
+		if (boost::algorithm::ends_with(chIter->first, "_id"))
+		{
+    		size_t num_particles = chIter->second._dbla.size();
+    		for (size_t pid = 0; pid < num_particles; pid++)
+    		{
+    			o_dataSet._id.push_back(chIter->second._dbla[pid]);
+    		}
+		}
+
+	}
+}
+
+AtNode* nCacheTranslator::Emit(int i_currentFrame, int i_startFrame, int i_endFrame, float i_fps_1,
+		const std::string& i_cachePathString, const std::string& i_cacheNameString, const std::string& i_format)
+{
+//    std::vector<Imath::V3f> arnold_points_position;
+//    std::vector<Imath::V3f> arnold_points_velocity;
+//    std::vector<int> arnold_points_particle_id;
+//    std::vector<float> arnold_points_radius;
+//    const float default_radius = 1.0f;
+    AtNode* arnold_points = 0;
+	std::string currentFrameDataCacheFileNameString = i_cachePathString + i_cacheNameString + (boost::format("Frame%d.%s") % i_currentFrame % i_format.c_str()).str();
+	AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache dataCacheFileNameString '%s'",currentFrameDataCacheFileNameString.c_str());
+
+	if ( boost::filesystem::exists( currentFrameDataCacheFileNameString ) )
+	{
+		DataSet currentDataSet;
+
+		ExtractDataSet(currentFrameDataCacheFileNameString, currentDataSet);
+
+		if (!currentDataSet._position.empty())
+		{
+			arnold_points = AddArnoldNode("points");
+
+			if (!currentDataSet._velocity.empty() && (currentDataSet._velocity.size() == currentDataSet._position.size()))
+			{
+	    		size_t num_particles = currentDataSet._velocity.size();
+
+				typedef boost::multi_array<float, 3> MotionBlurredPositionType;
+				typedef MotionBlurredPositionType::index index;
+				MotionBlurredPositionType arnold_points_motion_blurred_position(boost::extents[2][num_particles][3]);
+	    		for (size_t pid = 0; pid < num_particles; pid++)
+	    		{
+	    			// start
+	    			arnold_points_motion_blurred_position[0][pid][0] = currentDataSet._position[pid].x;
+	    			arnold_points_motion_blurred_position[0][pid][1] = currentDataSet._position[pid].y;
+	    			arnold_points_motion_blurred_position[0][pid][2] = currentDataSet._position[pid].z;
+
+	    			// end (blurred)
+	    			arnold_points_motion_blurred_position[1][pid][0] = currentDataSet._position[pid].x + (i_fps_1 * currentDataSet._velocity[pid].x);
+	    			arnold_points_motion_blurred_position[1][pid][1] = currentDataSet._position[pid].y + (i_fps_1 * currentDataSet._velocity[pid].y);
+	    			arnold_points_motion_blurred_position[1][pid][2] = currentDataSet._position[pid].z + (i_fps_1 * currentDataSet._velocity[pid].z);
+	    		}
+
+				AiNodeSetArray(arnold_points, "points", AiArrayConvert(currentDataSet._position.size(), 2, AI_TYPE_POINT, arnold_points_motion_blurred_position.data()));
+
+			}
+			else
+				AiNodeSetArray(arnold_points, "points", AiArrayConvert(currentDataSet._position.size(), 1, AI_TYPE_POINT, currentDataSet._position.data()));
+		    AiNodeSetArray(arnold_points, "radius", AiArrayConvert(currentDataSet._radius.size(), 1, AI_TYPE_FLOAT, currentDataSet._radius.data()));
+
+		}
+
+
+	}
+	return arnold_points;
 }
 
 extern "C"
