@@ -1,0 +1,5 @@
+INSTALL ( FILES VRAYprocedural
+  DESTINATION ${HDK_HOME_HFS}
+  )
+
+ADD_SUBDIRECTORY ( nCache )
