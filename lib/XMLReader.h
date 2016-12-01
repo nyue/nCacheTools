@@ -26,10 +26,10 @@ namespace nCache
 		XMLReader();
 		~XMLReader();
 		void read(const std::string& i_ncache_xml_filename);
-		std::string getCacheType() const { return _cache_type; }
-		std::string getCacheFormat() const { return _cache_format; }
-		const ChannelInfoContainer& getChannels() const {return _channels; }
-		std::string get_cache_name() const { return _base_cache_name;};
+		std::string get_cache_type() const { return _cache_type; }
+		std::string get_cache_format() const { return _cache_format; }
+		const ChannelInfoContainer& get_channels() const {return _channels; }
+		std::string get_base_cache_name() const { return _base_cache_name;};
 		std::string get_cache_directory() const { return _cache_directory;};
 		// size_t get_num_frames() const { return _num_frames;};
 

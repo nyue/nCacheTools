@@ -21,13 +21,21 @@ namespace nCache
 	public:
 		nCacheAlembic();
 		virtual ~nCacheAlembic();
-		bool process(const std::string& i_alembic_filename, const nCacheLoader& i_ncache_loader);
+		/*!
+		 * \brief Write a single Alembic file
+		 */
+		bool process(const std::string&  i_alembic_filename,
+					 const nCacheLoader& i_ncache_loader);
+		/*!
+		 * \brief Write one Alembic file for each frame
+		 */
+		bool process_per_frame(const std::string&  i_alembic_format_filename,
+							   const nCacheLoader& i_ncache_loader);
 	protected:
 		void process_single_sample(const CacheReaderSharedPointerType& i_cache_reader_ptr,
-				const std::string& i_position_channel_name,
-				const std::string& i_id_channel_name,
-				Alembic::AbcGeom::OPointsSchema &o_pSchema
-				);
+								   const std::string&                  i_position_channel_name,
+								   const std::string&                  i_id_channel_name,
+								   Alembic::AbcGeom::OPointsSchema&    o_pSchema);
 	};
 
 } // namespace nCache

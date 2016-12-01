@@ -129,8 +129,8 @@ AtNode* nCacheTranslator::CreateArnoldNodes()
             		if ( boost::filesystem::exists( xmlCacheFileNameString.asChar() ) )
             		{
             			xml_reader.read(xmlCacheFileNameString.asChar());
-                		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache cache format = '%s'",xml_reader.getCacheFormat().c_str());
-                		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache cache type = '%s'",xml_reader.getCacheType().c_str());
+                		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache cache format = '%s'",xml_reader.get_cache_format().c_str());
+                		AiMsgInfo("[nCacheTranslator extension] CreateArnoldNodes() playFromCache cache type = '%s'",xml_reader.get_cache_type().c_str());
 
                 		MTime sourceStart;
                 		getDataFromPlug(fnNode,"sourceStart",sourceStart,status);
@@ -155,7 +155,7 @@ AtNode* nCacheTranslator::CreateArnoldNodes()
 								sourceEnd.value(),fps_1,
                 				cachePathString.asChar(),
 								cacheNameString.asChar(),
-								xml_reader.getCacheFormat());
+								xml_reader.get_cache_format());
             		}
 
             	}

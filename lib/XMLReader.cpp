@@ -12,7 +12,7 @@
 #include <errno.h>
 
 #include <boost/format.hpp>
-// #include <boost/filesystem.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -37,7 +37,16 @@ XMLReader::~XMLReader()
 void XMLReader::read(const std::string& i_ncache_xml_filename)
 {
 	try {
+		std::cout << boost::format("i_ncache_xml_filename '%1%'") % i_ncache_xml_filename << std::endl;
 		boost::property_tree::ptree pt;
+
+		// This is Autodesk convention
+		boost::filesystem::path p(i_ncache_xml_filename);
+		boost::filesystem::directory_entry d(p);
+
+		_base_cache_name = p.stem().c_str();
+		_cache_directory = p.parent_path().c_str();
+		std::cout << boost::format("_base_cache_name '%1%', _cache_directory '%2%'") % _base_cache_name % _cache_directory << std::endl;
 
 		// Load XML file and put its contents in property tree.
 		// No namespace qualification is needed, because of Koenig
@@ -56,6 +65,12 @@ void XMLReader::read(const std::string& i_ncache_xml_filename)
 					_cache_type = pt.get<std::string>("Autodesk_Cache_File.cacheType.<xmlattr>.Type");
 					_cache_format = pt.get<std::string>("Autodesk_Cache_File.cacheType.<xmlattr>.Format");
 				}
+				else if (v.first.compare("time")==0)
+				{
+					std::string time_range = pt.get<std::string>("Autodesk_Cache_File.time.<xmlattr>.Range");
+					std::cout << boost::format("time_range = '%1%'") % time_range << std::endl;
+					sscanf(time_range.c_str(),"%d-%d",&_time_range_start,&_time_range_end);
+				}
 				else if (v.first.compare("cacheTimePerFrame")==0)
 				{
 					_cacheTimePerFrame_TimePerFrame = atoi(pt.get<std::string>("Autodesk_Cache_File.cacheTimePerFrame.<xmlattr>.TimePerFrame").c_str());
@@ -70,10 +85,9 @@ void XMLReader::read(const std::string& i_ncache_xml_filename)
 		// Now, focus on just the channel information
 		BOOST_FOREACH(boost::property_tree::ptree::value_type &c, pt.get_child("Autodesk_Cache_File.Channels"))
 		{
-			std::cout << boost::format("Channels %1% : %2%") % c.first % c.second.data() << std::endl;
-
 			ChannelInfo channel_info;
 			std::string channel_name = pt.get<std::string>((boost::format("Autodesk_Cache_File.Channels.%1%.<xmlattr>.ChannelName")%c.first).str());
+			std::cout << boost::format("Channels %1% : %2%") % c.first % channel_name << std::endl;
 			channel_info._channel_type = pt.get<std::string>((boost::format("Autodesk_Cache_File.Channels.%1%.<xmlattr>.ChannelType")%c.first).str());
 			channel_info._channel_interpretation = pt.get<std::string>((boost::format("Autodesk_Cache_File.Channels.%1%.<xmlattr>.ChannelInterpretation")%c.first).str());
 			std::string sampling_type_string = pt.get<std::string>((boost::format("Autodesk_Cache_File.Channels.%1%.<xmlattr>.SamplingType")%c.first).str());
@@ -86,6 +100,10 @@ void XMLReader::read(const std::string& i_ncache_xml_filename)
 			channel_info._start_time = atoi(pt.get<std::string>((boost::format("Autodesk_Cache_File.Channels.%1%.<xmlattr>.StartTime")%c.first).str()).c_str());
 			channel_info._end_time = atoi(pt.get<std::string>((boost::format("Autodesk_Cache_File.Channels.%1%.<xmlattr>.EndTime")%c.first).str()).c_str());
 
+			if (channel_info._channel_interpretation.compare("count")==0)
+			{
+				_particle_count_sampling_rate = channel_info._sampling_rate;
+			}
 			_channels.insert(ChannelInfoContainer::value_type(channel_name,channel_info));
 		}
 	}
