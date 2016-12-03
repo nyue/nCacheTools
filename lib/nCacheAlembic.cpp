@@ -93,6 +93,7 @@ bool nCacheAlembic::process(const std::string& i_alembic_filename,
 	for (size_t frame_index = start_frame; frame_index <= end_frame; frame_index++)
 	{
 		std::string per_initial_frame_full_path = (boost::format("%1%/%2%Frame%3%.%4%") % xml_reader.get_cache_directory() % xml_reader.get_base_cache_name() % frame_index % cache_extension).str();
+		DLOG(INFO) << boost::format("per_initial_frame_full_path = '%1%'") % per_initial_frame_full_path;
 	    // std::cout << boost::format("per_initial_frame_full_path = '%1%'") % per_initial_frame_full_path << std::endl;
 
 		if (is_mcx)
@@ -114,6 +115,7 @@ bool nCacheAlembic::process(const std::string& i_alembic_filename,
 			while ((accumulated_ticks < ncache_ticks_per_frame) && ((ncache_ticks_per_frame-accumulated_ticks)>=ncache_sampling_rate) )
 			{
 				std::string per_sub_frame_full_path = (boost::format("%1%/%2%Frame%3%Tick%4%.%5%") % xml_reader.get_cache_directory() % xml_reader.get_base_cache_name() % frame_index % accumulated_ticks % cache_extension).str();
+				DLOG(INFO) << boost::format("per_sub_frame_full_path = '%1%'") % per_sub_frame_full_path;
 				// std::cout << boost::format("\t""per_sub_frame_full_path '%1%'") % per_sub_frame_full_path << std::endl;
 
 				if (is_mcx)
@@ -270,6 +272,7 @@ void nCacheAlembic::process_single_sample(const CacheReaderSharedPointerType& i_
 		    	m_position[pIndex].x = cdcPositionIter->second._fvca[pIndex].x;
 		    	m_position[pIndex].y = cdcPositionIter->second._fvca[pIndex].y;
 		    	m_position[pIndex].z = cdcPositionIter->second._fvca[pIndex].z;
+		    	DLOG(INFO) << boost::format("m_position[%1%] = %2%") % pIndex % m_position[pIndex] << std::endl;
 		    }
 
 		}
