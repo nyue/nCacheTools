@@ -60,6 +60,16 @@ TARGET_LINK_LIBRARIES ( mcx2csv
   ${NCACHE_REQUIRED_LIBRARIES}
   )
 
+INSTALL ( TARGETS
+  mcinfo
+  mcxinfo
+  xmlinfo
+  mc2csv
+  mcx2csv
+  DESTINATION
+  bin
+  )
+
 IF ( BUILD_ALEMBIC_TOOLS )
   SET  ( ALEMBIC_REQUIRED_LIBRARIES 
 	${Alembic_Alembic_LIBRARY}
@@ -75,4 +85,11 @@ IF ( BUILD_ALEMBIC_TOOLS )
 	${ALEMBIC_REQUIRED_LIBRARIES}
 	${CMAKE_DL_LIBS}
 	)
+
+  INSTALL ( TARGETS
+	nCache2alembic
+	DESTINATION
+	bin
+	)
+  
 ENDIF ()
