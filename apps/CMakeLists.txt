@@ -63,8 +63,8 @@ TARGET_LINK_LIBRARIES ( mcx2csv
 IF ( BUILD_ALEMBIC_TOOLS )
   SET  ( ALEMBIC_REQUIRED_LIBRARIES 
 	${Alembic_Alembic_LIBRARY}
-	${Ilmbase_HALF_LIBRARY}
-	${Ilmbase_IEX_LIBRARY}
+	${Ilmbase_Half_LIBRARY}
+	${Ilmbase_Iex_LIBRARY}
 	${HDF5_hdf5_LIBRARY}
 	${HDF5_hdf5_hl_LIBRARY}
 	${HDF5_z_LIBRARY}
