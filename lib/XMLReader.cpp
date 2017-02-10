@@ -44,8 +44,8 @@ void XMLReader::read(const std::string& i_ncache_xml_filename)
 		boost::filesystem::path p(i_ncache_xml_filename);
 		boost::filesystem::directory_entry d(p);
 
-		_base_cache_name = p.stem().c_str();
-		_cache_directory = p.parent_path().c_str();
+		_base_cache_name = p.stem().string();
+		_cache_directory = p.parent_path().string();
 		std::cout << boost::format("_base_cache_name '%1%', _cache_directory '%2%'") % _base_cache_name % _cache_directory << std::endl;
 
 		// Load XML file and put its contents in property tree.
