@@ -9,7 +9,7 @@ int main(int argc, char** argv)
 {
 	if (argc != 3)
 	{
-		fprintf(stderr,"Usage : %s <mc-input-file> <csv-output-file>\n",argv[0]);
+		fprintf(stderr,"Author: Nicholas Yue (yue.nicholas@gmail.com)\nUsage : %s <mc-input-file> <csv-output-file>\n",argv[0]);
 		return 1;
 	}
 	google::InitGoogleLogging(argv[0]);

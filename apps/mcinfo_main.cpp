@@ -7,7 +7,7 @@ int main(int argc, char** argv)
 {
 	if (argc != 2)
 	{
-		std::cerr << boost::format("Usage : %1% <mcc file>") % argv[0] << std::endl;
+		std::cerr << boost::format("Author: Nicholas Yue (yue.nicholas@gmail.com)\nUsage : %1% <mcc file>") % argv[0] << std::endl;
 		return 1;
 	}
 	google::InitGoogleLogging(argv[0]);
