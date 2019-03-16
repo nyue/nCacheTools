@@ -139,20 +139,36 @@ bool MCXMemoryReader::read_channel()
 		read_channel_int64(value_int64);
 		DLOG(INFO) << boost::format("CHANNEL : 05 value %1%") % value_int64 << std::endl;
 
+		read_channel_pascal_string_64(tag);
+		std::string object_name = tag;
+		DLOG(INFO) << boost::format("CHANNEL : 05.5 object_name '%1%'") % object_name << std::endl;
+#ifdef ABC
 		read_channel_int32(value_int32);
-		read_channel_int32(value_int32);
+		// read_channel_int32(value_int32);
 		size_t array_element_count = value_int32;
 		DLOG(INFO) << boost::format("CHANNEL : 06 array_element_count %1%") % array_element_count << std::endl;
+#endif 
+		size_t array_element_count = 0;//value_int32;
+
+		// read_channel_int16(value_int16);
+		read_channel_tag(tag);
+		DLOG(INFO) << boost::format("CHANNEL : NICHOLAS 01 tag '%1%'") % tag << std::endl;
 
 		read_channel_int32(value_int32);
+		DLOG(INFO) << boost::format("CHANNEL : NICHOLAS 02") << std::endl;
+		read_channel_int32(value_int32);
+		DLOG(INFO) << boost::format("CHANNEL : NICHOLAS 03") << std::endl;
+		read_channel_int32(value_int32);
+		DLOG(INFO) << boost::format("CHANNEL : NICHOLAS 04") << std::endl;
+		read_channel_int32(value_int32);
+		DLOG(INFO) << boost::format("CHANNEL : NICHOLAS 05") << std::endl;
+		size_t array_buffer_size = value_int32;
+		read_channel_int32(value_int32);
+		DLOG(INFO) << boost::format("CHANNEL : 08 array_buffer_size %1%") % array_buffer_size << std::endl;
+
 		read_channel_tag(tag);
 		std::string array_data_type = tag;
 		DLOG(INFO) << boost::format("CHANNEL : 07 cache = '%1%' name = '%2%' array_data_type '%3%' channel_index = %4%") % _cache_filename % channel_name % array_data_type % channel_index << std::endl;
-
-		read_channel_int64(value_int64);
-		read_channel_int32(value_int32);
-		size_t array_buffer_size = value_int32;
-		DLOG(INFO) << boost::format("CHANNEL : 08 array_buffer_size %1%") % array_buffer_size << std::endl;
 
 		// _channels_data.back()._name = channel_name;
 		// _channels_data.back()._type = array_data_type;
@@ -160,6 +176,8 @@ bool MCXMemoryReader::read_channel()
 
 		if (array_data_type.compare("DBLA")==0)
 		{
+			DLOG(INFO) << boost::format("DBLA data type") << std::endl;
+
 			// _channels_data.back()._dbla.resize(array_element_count);
 			iter->second._dbla.resize(array_element_count);
 
@@ -174,6 +192,7 @@ bool MCXMemoryReader::read_channel()
 		}
 		else if (array_data_type.compare("FVCA")==0)
 		{
+			DLOG(INFO) << boost::format("FCVA data type") << std::endl;
 
 			const int32_t modulo = 8;
 			int32_t  array_buffer_size_modulus = array_buffer_size%modulo;
