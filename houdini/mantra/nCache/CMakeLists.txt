@@ -7,5 +7,5 @@ TARGET_LINK_LIBRARIES ( VRAY_nCache
   )
   
 INSTALL ( TARGETS VRAY_nCache
-  DESTINATION ${HDK_HOME_HFS}/dso/mantra
+  DESTINATION houdini/dso/mantra
   )
