@@ -10,3 +10,7 @@ TARGET_LINK_LIBRARIES ( nCache
   ${NCACHE_REQUIRED_LIBRARIES}
   NCacheTranslatorUtils
   )
+
+INSTALL ( TARGETS nCache
+  DESTINATION houdini/dso
+  )
